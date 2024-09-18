@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Modal } from "react-responsive-modal";
 import { toast } from "react-toastify";
@@ -40,7 +40,6 @@ function ViewStory({ open, onClose }) {
   ];
 
   const [activeSlide, setActiveSlide] = useState(slide);
-  const touchStartRef = useRef(null);
 
   const nextSlide = () => {
     const nextIndex = activeSlide === stories.length - 1 ? 0 : activeSlide + 1;
@@ -52,18 +51,6 @@ function ViewStory({ open, onClose }) {
     const prevIndex = activeSlide === 0 ? stories.length - 1 : activeSlide - 1;
     setActiveSlide(prevIndex);
     updateSlide(prevIndex);
-  };
-
-  const handleTouchStart = (e) => {
-    touchStartRef.current = e.touches[0].clientX;
-  };
-
-  const handleTouchEnd = (e) => {
-    const touchEndX = e.changedTouches[0].clientX;
-    const touchDiff = touchStartRef.current - touchEndX;
-
-    if (touchDiff > 30) nextSlide();
-    else if (touchDiff < -30) prevSlide();
   };
 
   const updateSlide = (newSlide) => {
@@ -83,8 +70,6 @@ function ViewStory({ open, onClose }) {
     if (open) setActiveSlide(slide);
   }, [open, slide]);
 
-  console.log(Object.fromEntries(searchParams));
-
   return (
     <Modal
       open={open}
@@ -97,8 +82,6 @@ function ViewStory({ open, onClose }) {
         },
       }}
       showCloseIcon={false}
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
     >
       <img
         src="/icons/arrow-left.svg"
@@ -119,6 +102,7 @@ function ViewStory({ open, onClose }) {
                 className={`line ${
                   idx === stories[activeSlide].id - 1 && "active"
                 }`}
+                onClick={() => setActiveSlide(idx)}
                 key={idx}
               />
             ))}
