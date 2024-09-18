@@ -1,10 +1,15 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Catagories from "../components/Catagories";
 import Stories from "../components/Stories";
+import ViewStory from "../components/modals/ViewStory";
 
 function Homepage() {
-  const isLoggedIn = false;
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [storyModal, setStoryModal] = useState(
+    searchParams.has("story") && searchParams.has("slide")
+  );
 
   const catagories = [
     {
@@ -33,6 +38,8 @@ function Homepage() {
     },
   ];
 
+  useEffect(() => {}, []);
+
   return (
     <>
       <Navbar />
@@ -42,6 +49,13 @@ function Homepage() {
         .map((cat, index) => (
           <Stories catagory={cat.name} key={index} />
         ))}
+      <ViewStory
+        open={storyModal}
+        onClose={() => {
+          setStoryModal(false);
+          setSearchParams({});
+        }}
+      />
     </>
   );
 }

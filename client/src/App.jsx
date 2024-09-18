@@ -10,7 +10,7 @@ import "react-responsive-modal/styles.css";
 function App() {
   return (
     <Router>
-      <ToastContainer />
+      <ToastContainer closeButton={false} />
       <Routes>
         <Route path="/" element={<Homepage />} />
       </Routes>

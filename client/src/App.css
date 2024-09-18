@@ -27,3 +27,11 @@ button {
     font-weight: 600;
     cursor: pointer;
 }
+
+.Toastify__toast-container {
+    width: fit-content !important;
+}
+
+::-webkit-scrollbar {
+    display: none;
+}

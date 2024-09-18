@@ -1,0 +1,154 @@
+.viewStory {
+    position: relative;
+    color: #fff;
+    width: 600px;
+    align-content: center;
+    padding: 10px;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+.viewStory .arrowNav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    width: 20px;
+}
+
+.viewStory .arrowNav:last-child {
+    right: 0;
+}
+
+.storyCard {
+    position: relative;
+    margin: auto;
+    width: 340px;
+    height: 550px;
+    background: rebeccapurple;
+    background-size: cover;
+    background-position: center;
+    border-radius: 10px;
+    box-shadow: 0px 0px 25px 0px rgba(255, 255, 255, 0.3);
+}
+
+.storyCard::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 300px;
+    border-radius: 10px;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.99), rgba(0, 0, 0, 0));
+}
+
+.storyCard::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 200px;
+    border-radius: 10px;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.99), rgba(0, 0, 0, 0));
+}
+
+.storyCard .header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding: 20px;
+    z-index: 1;
+    width: 100%;
+}
+
+.storyCard .header .slidecount {
+    display: flex;
+    gap: 10px;
+}
+
+.storyCard .header .slidecount .line {
+    flex-grow: 1;
+    border: 0;
+    outline: 0;
+    width: 41.66px;
+    height: 3px;
+    background: #D9D9D980;
+}
+
+.storyCard .header .slidecount .line.active {
+    background: #fff;
+}
+
+.storyCard .header .action {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.storyCard .header .action img {
+    cursor: pointer;
+}
+
+.storyCard .footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    padding: 10px 20px;
+}
+
+.storyCard .footer h3 {
+    font-size: 25px;
+    margin-bottom: 10px;
+}
+
+.storyCard .footer .action {
+    margin-top: 15px;
+    display: flex;
+    justify-content: space-around;
+}
+
+.storyCard .footer .action .like {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+}
+
+.storyCard .footer .action svg {
+    width: 25px;
+    cursor: pointer;
+}
+
+.storyCard .footer .action svg path {
+    fill: #fff;
+}
+
+.storyCard .footer .action .bookmark.active svg path {
+    fill: #085CFF;
+}
+
+.storyCard .footer .action .like.active svg path {
+    fill: #FF0000;
+}
+
+@media only screen and (max-width: 768px) {
+    .viewStory {
+        width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        height: 100%;
+    }
+
+    .viewStory .arrowNav {
+        display: none;
+    }
+
+    .storyCard {
+        width: 100%;
+        height: 100%;
+        border-radius: 0px;
+        box-shadow: none;
+    }
+}
