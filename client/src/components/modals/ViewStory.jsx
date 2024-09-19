@@ -8,6 +8,7 @@ function ViewStory({ open, onClose }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const slide = parseInt(searchParams.get("slide"), 10) || 0;
   const videoRef = useRef(null);
+  const [isMuted, setIsMuted] = useState(true);
 
   const stories = [
     {
@@ -86,6 +87,7 @@ function ViewStory({ open, onClose }) {
   const toggleMediaSound = () => {
     if (videoRef.current) {
       videoRef.current.muted = !videoRef.current.muted;
+      setIsMuted(!isMuted);
     }
   };
 
@@ -141,7 +143,7 @@ function ViewStory({ open, onClose }) {
           {getMediaType().type == "image" ? (
             <img src={media} alt="media" />
           ) : (
-            <video autoPlay muted loop ref={videoRef}>
+            <video autoPlay loop muted={isMuted} ref={videoRef}>
               <source src={media} type={`video/${getMediaType().extension}`} />
             </video>
           )}

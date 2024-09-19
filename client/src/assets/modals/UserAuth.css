@@ -1,0 +1,93 @@
+.userAuth {
+    position: relative;
+    border-radius: 20px;
+    padding: 70px !important;
+    overflow: hidden;
+}
+
+.userAuth .closeModal {
+    position: absolute;
+    top: 30px;
+    right: 30px;
+    width: 30px;
+    cursor: pointer;
+}
+
+.userAuth h1 {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.userAuth form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+}
+
+.userAuth .inputs {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.userAuth .inputs .group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    width: 300px;
+}
+
+.userAuth .inputs label {
+    width: 130px;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.userAuth .inputs input {
+    padding: 10px 40px 10px 20px;
+    font-size: 18px;
+}
+
+.userAuth .inputs .togglePass {
+    position: absolute;
+    top: 15px;
+    right: 10px;
+    cursor: pointer;
+}
+
+.userAuth .loginBtn {
+    background: #73ABFF;
+}
+
+@media only screen and (max-width: 768px) {
+    .userAuth {
+        padding: 40px 20px !important;
+    }
+
+    .userAuth .closeModal {
+        top: 10px;
+        right: 10px;
+    }
+
+    .userAuth h1 {
+        margin-bottom: 20px;
+    }
+
+    .userAuth .inputs {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .userAuth .inputs label,
+    .userAuth .inputs input {
+        width: 100%;
+        height: 100%;
+    }
+
+    .userAuth .inputs .togglePass {
+        top: 50px;
+    }
+}
