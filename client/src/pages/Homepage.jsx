@@ -1,15 +1,24 @@
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
+import useAuth from "../hooks/useAuth";
 import Navbar from "../components/Navbar";
 import Catagories from "../components/Catagories";
 import Stories from "../components/Stories";
+import UserAuth from "../components/modals/UserAuth";
 import ViewStory from "../components/modals/ViewStory";
+import { fetchUserApi } from "../apis/User";
 
 function Homepage() {
+  const token = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const [storyModal, setStoryModal] = useState(
     searchParams.has("story") && searchParams.has("slide")
   );
+
+  const [authType, setAuthType] = useState(null);
+  const [authModal, setAuthModal] = useState(false);
+  const [userToken, setUserToken] = useState(token);
+  const [userData, setUserData] = useState({});
 
   const catagories = [
     {
@@ -38,16 +47,41 @@ function Homepage() {
     },
   ];
 
-  useEffect(() => {}, []);
+  const fetchUser = async () => {
+    const data = await fetchUserApi(userToken);
+    if (data) setUserData(data);
+  };
+
+  useEffect(() => {
+    if (token) setUserToken(token);
+  }, [token]);
+
+  useEffect(() => {
+    userToken ? fetchUser() : setUserData({});
+  }, [userToken]);
+
+  // console.log(userToken);
 
   return (
     <>
-      <Navbar />
+      <Navbar
+        authType={(type) => {
+          setAuthType(type);
+          setAuthModal(true);
+        }}
+        setUserToken={setUserToken}
+        userData={userData}
+      />
       <Catagories catagories={catagories} />
       {catagories
         .filter((cat) => cat.name !== "All")
         .map((cat, index) => (
-          <Stories catagory={cat.name} key={index} />
+          <Stories
+            catagory={cat.name}
+            setStoryModal={setStoryModal}
+            userToken={userToken}
+            key={index}
+          />
         ))}
       <ViewStory
         open={storyModal}
@@ -55,6 +89,17 @@ function Homepage() {
           setStoryModal(false);
           setSearchParams({});
         }}
+        authType={(type) => {
+          setAuthType(type);
+          setAuthModal(true);
+        }}
+        userToken={userToken}
+      />
+      <UserAuth
+        open={authModal}
+        onClose={() => setAuthModal(false)}
+        authType={authType}
+        setUserToken={setUserToken}
       />
     </>
   );

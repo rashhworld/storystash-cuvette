@@ -2,12 +2,10 @@ import React, { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Modal } from "react-responsive-modal";
 import { toast } from "react-toastify";
-import useAuth from "../../hooks/useAuth";
 import { downloadStoryApi } from "../../apis/Story";
 import "../../assets/modals/ViewStory.css";
 
-function ViewStory({ open, onClose }) {
-  const token = useAuth();
+function ViewStory({ open, onClose, authType, userToken }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const slide = parseInt(searchParams.get("slide"), 10) || 0;
 
@@ -96,10 +94,10 @@ function ViewStory({ open, onClose }) {
   };
 
   const handleSlideAction = async (type) => {
-    // if (!token) {
-    //   console.log("please login");
-    //   return;
-    // }
+    if (!userToken) {
+      authType("Login");
+      return;
+    }
 
     if (type == "download") {
       await downloadStoryApi(media);
@@ -129,7 +127,7 @@ function ViewStory({ open, onClose }) {
     // after fetch total users like, set the stories like  to total like
   }, []);
 
-  console.log(slideAction);
+  // console.log(userToken);
 
   return (
     <Modal

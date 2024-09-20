@@ -1,12 +1,10 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { userLoginApi, userRegisterApi } from "../../apis/User";
 import { Modal } from "react-responsive-modal";
 import "../../assets/modals/UserAuth.css";
 
-function UserAuth({ open, onClose, authType = "Login", userToken }) {
-  const navigate = useNavigate();
+function UserAuth({ open, onClose, authType, setUserToken }) {
   const {
     register,
     handleSubmit,
@@ -22,8 +20,7 @@ function UserAuth({ open, onClose, authType = "Login", userToken }) {
     if (token) {
       localStorage.setItem("authToken", token);
       closeAuthModal();
-      navigate("/");
-      userToken(token);
+      setUserToken(token);
     }
   };
 
