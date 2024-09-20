@@ -2,17 +2,18 @@ import React, { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Modal } from "react-responsive-modal";
 import { toast } from "react-toastify";
+import useAuth from "../../hooks/useAuth";
+import { downloadStoryApi } from "../../apis/Story";
 import "../../assets/modals/ViewStory.css";
 
 function ViewStory({ open, onClose }) {
+  const token = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const slide = parseInt(searchParams.get("slide"), 10) || 0;
-  const videoRef = useRef(null);
-  const [isMuted, setIsMuted] = useState(true);
 
-  const stories = [
+  const [stories, setStories] = useState([
     {
-      id: 1,
+      id: 0,
       title: "Heading 1",
       desc: "This description is all about heading 1",
       media:
@@ -20,14 +21,14 @@ function ViewStory({ open, onClose }) {
       likes: 105,
     },
     {
-      id: 2,
+      id: 1,
       title: "Heading 2",
       desc: "This description is all about heading 2",
       media: "https://beta.testfree.in/demo1.mp4",
       likes: 115,
     },
     {
-      id: 3,
+      id: 2,
       title: "Heading 3",
       desc: "This description is all about heading 3",
       media:
@@ -35,16 +36,19 @@ function ViewStory({ open, onClose }) {
       likes: 125,
     },
     {
-      id: 4,
+      id: 3,
       title: "Heading 4",
       desc: "This description is all about heading 4",
       media:
         "https://www.timeshighereducation.com/student/sites/default/files/styles/default/public/istock-499343530.jpg",
       likes: 135,
     },
-  ];
-
+  ]);
   const [activeSlide, setActiveSlide] = useState(slide);
+  const [slideAction, setSlideAction] = useState({ like: [], bookmark: [] });
+  const [isMuted, setIsMuted] = useState(true);
+  const videoRef = useRef(null);
+
   const { id, title, desc, media, likes } = stories[activeSlide];
 
   const getMediaType = () => {
@@ -91,11 +95,41 @@ function ViewStory({ open, onClose }) {
     }
   };
 
+  const handleSlideAction = async (type) => {
+    // if (!token) {
+    //   console.log("please login");
+    //   return;
+    // }
+
+    if (type == "download") {
+      await downloadStoryApi(media);
+      return;
+    }
+
+    setSlideAction((prevData) => {
+      const currentData = prevData[type];
+      const updatedData = currentData.includes(id)
+        ? currentData.filter((item) => item !== id)
+        : [...currentData, id];
+      return {
+        ...prevData,
+        [type]: updatedData,
+      };
+    });
+  };
+
   useEffect(() => {
     if (open) setActiveSlide(slide);
   }, [open, slide]);
 
-  // console.log();
+  useEffect(() => {
+    //fetch story data
+    //fetch user data to check isliked, isbookmarked
+    //fetch all userdata  to count total likes
+    // after fetch total users like, set the stories like  to total like
+  }, []);
+
+  console.log(slideAction);
 
   return (
     <Modal
@@ -103,11 +137,6 @@ function ViewStory({ open, onClose }) {
       onClose={onClose}
       center
       classNames={{ modal: "viewStory" }}
-      styles={{
-        overlay: {
-          background: "rgba(0, 0, 0, 0.9)",
-        },
-      }}
       showCloseIcon={false}
     >
       <img
@@ -121,7 +150,7 @@ function ViewStory({ open, onClose }) {
           <div className="slidecount">
             {stories.map((_, idx) => (
               <hr
-                className={`line ${idx === id - 1 && "active"}`}
+                className={`line ${idx === id && "active"}`}
                 onClick={() => setActiveSlide(idx)}
                 key={idx}
               />
@@ -152,7 +181,12 @@ function ViewStory({ open, onClose }) {
           <h3>{title}</h3>
           <p>{desc}</p>
           <div className="action">
-            <div className="bookmark active">
+            <div
+              className={`bookmark ${
+                slideAction.bookmark.includes(id) && "active"
+              }`}
+              onClick={() => handleSlideAction("bookmark")}
+            >
               <svg
                 viewBox="0 0 24 24"
                 data-name="Line Color"
@@ -161,12 +195,18 @@ function ViewStory({ open, onClose }) {
                 <path d="m12 17-7 4V4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v17Z" />
               </svg>
             </div>
-            <div className="download">
+            <div
+              className="download"
+              onClick={() => handleSlideAction("download")}
+            >
               <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
                 <path d="M232 64h48v150l-3 56 23-28 56-53 32 32-132 132-132-132 32-32 56 53 23 28-3-56zM64 400h384v48H64z" />
               </svg>
             </div>
-            <div className="like active">
+            <div
+              className={`like ${slideAction.like.includes(id) && "active"}`}
+              onClick={() => handleSlideAction("like")}
+            >
               <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path d="M7 3c-1.535 0-3.078.5-4.25 1.7-2.343 2.4-2.279 6.1 0 8.5L12 23l9.25-9.8c2.279-2.4 2.343-6.1 0-8.5-2.343-2.3-6.157-2.3-8.5 0l-.75.8-.75-.8C10.078 3.5 8.536 3 7 3" />
               </svg>

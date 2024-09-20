@@ -4,6 +4,7 @@ var cors = require('cors');
 const dotenv = require('dotenv');
 
 const userRoutes = require('./src/routes/User');
+const storyRoutes = require('./src/routes/Story');
 
 const errorHandler = require('./src/middlewares/errorHandler');
 
@@ -15,6 +16,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(userRoutes);
+app.use(storyRoutes);
 
 app.get('/', (req, res) => {
     res.status(200).send({ status: "success", msg: "API is working well." });

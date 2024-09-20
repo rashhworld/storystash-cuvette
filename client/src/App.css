@@ -32,6 +32,10 @@ span.error {
     color: #FF0E0E;
 }
 
+.react-responsive-modal-overlay {
+    background: rgba(0, 0, 0, 0.9) !important;
+}
+
 .Toastify__toast {
     min-height: 0 !important;
 }

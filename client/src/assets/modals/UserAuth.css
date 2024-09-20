@@ -2,7 +2,6 @@
     position: relative;
     border-radius: 20px;
     padding: 70px !important;
-    overflow: hidden;
 }
 
 .userAuth .closeModal {
@@ -41,13 +40,13 @@
 
 .userAuth .inputs label {
     width: 130px;
-    font-size: 20px;
+    font-size: clamp(16px, 2vw + 6px, 20px);
     font-weight: 700;
 }
 
 .userAuth .inputs input {
     padding: 10px 40px 10px 20px;
-    font-size: 18px;
+    font-size: 16px;
 }
 
 .userAuth .inputs .togglePass {
@@ -63,22 +62,23 @@
 
 @media only screen and (max-width: 768px) {
     .userAuth {
-        padding: 40px 20px !important;
+        width: 90% !important;
+        margin: 0 !important;
     }
 
     .userAuth .closeModal {
-        top: 10px;
-        right: 10px;
+        top: 15px;
+        right: 15px;
     }
 
     .userAuth h1 {
-        margin-bottom: 20px;
+        margin-bottom: 30px;
     }
 
     .userAuth .inputs {
         align-items: flex-start;
         flex-direction: column;
-        gap: 10px;
+        gap: 5px;
     }
 
     .userAuth .inputs label,
@@ -88,6 +88,6 @@
     }
 
     .userAuth .inputs .togglePass {
-        top: 50px;
+        top: 40px;
     }
 }
