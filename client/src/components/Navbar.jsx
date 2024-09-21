@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import styles from "../assets/Navbar.module.css";
 
-function Navbar({ authType, userData, setUserToken }) {
+function Navbar({ authType, userData, setUserToken, setAddStoryModal }) {
   const [showMenu, setShowMenu] = useState(false);
   const [mobileMenu, setMobileMenu] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -34,7 +34,7 @@ function Navbar({ authType, userData, setUserToken }) {
                 <img src="/icons/save.svg" height={20} alt="save" />
                 Bookmark
               </button>
-              <button>Add Story</button>
+              <button onClick={() => setAddStoryModal(true)}>Add Story</button>
               <img
                 src="https://rashhworld.github.io/assets/images/profile.webp"
                 width={40}
@@ -75,7 +75,11 @@ function Navbar({ authType, userData, setUserToken }) {
                   <h4>{userData.userName}</h4>
                 </div>
                 {mobileMenu && <button>Your Story</button>}
-                {mobileMenu && <button>Add Story</button>}
+                {mobileMenu && (
+                  <button onClick={() => setAddStoryModal(true)}>
+                    Add Story
+                  </button>
+                )}
                 {mobileMenu && (
                   <button>
                     <img src="/icons/save.svg" height={20} alt="save" />

@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
+import { fetchUserApi } from "../apis/User";
 import Navbar from "../components/Navbar";
 import Catagories from "../components/Catagories";
 import Stories from "../components/Stories";
 import UserAuth from "../components/modals/UserAuth";
 import ViewStory from "../components/modals/ViewStory";
-import { fetchUserApi } from "../apis/User";
+import AddStory from "../components/modals/AddStory";
 
 function Homepage() {
   const token = useAuth();
@@ -19,6 +20,8 @@ function Homepage() {
   const [authModal, setAuthModal] = useState(false);
   const [userToken, setUserToken] = useState(token);
   const [userData, setUserData] = useState({});
+
+  const [addStoryModal, setAddStoryModal] = useState(false);
 
   const catagories = [
     {
@@ -71,6 +74,7 @@ function Homepage() {
         }}
         setUserToken={setUserToken}
         userData={userData}
+        setAddStoryModal={setAddStoryModal}
       />
       <Catagories catagories={catagories} />
       {catagories
@@ -101,6 +105,7 @@ function Homepage() {
         authType={authType}
         setUserToken={setUserToken}
       />
+      <AddStory open={addStoryModal} onClose={() => setAddStoryModal(false)} />
     </>
   );
 }

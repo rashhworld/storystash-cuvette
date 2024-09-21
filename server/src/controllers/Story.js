@@ -2,7 +2,19 @@ const jwt = require('jsonwebtoken');
 const axios = require('axios');
 const path = require('path');
 
-const User = require('../models/User');
+const Story = require('../models/Story');
+
+const createStory = async (req, res, next) => {
+    try {
+        const userId = req.user;
+        const { storyData } = req.body;
+
+
+        res.status(200).json({ status: "success", msg: "Story created successfully." });
+    } catch (err) {
+        next(err);
+    }
+};
 
 const downloadStory = async (req, res, next) => {
     const { source } = req.body;
@@ -15,4 +27,4 @@ const downloadStory = async (req, res, next) => {
     }
 };
 
-module.exports = { downloadStory };
+module.exports = { createStory, downloadStory };
