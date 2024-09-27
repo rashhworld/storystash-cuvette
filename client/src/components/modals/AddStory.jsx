@@ -1,17 +1,19 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { userLoginApi, userRegisterApi } from "../../apis/User";
+import { createStoryApi } from "../../apis/Story";
 import { Modal } from "react-responsive-modal";
 import "../../assets/modals/AddStory.css";
 
-function AddStory({ open, onClose }) {
+function AddStory({ open, onClose, userToken, stories }) {
   const {
     register,
     handleSubmit,
     reset,
-    formState: { errors },
     setError,
     clearErrors,
+    trigger,
+    getValues,
+    formState: { errors },
   } = useForm();
 
   const [allSlides, setAllSlides] = useState([]);
@@ -89,31 +91,143 @@ function AddStory({ open, onClose }) {
     if (isValid) {
       data.likes = 0;
       changeCategory(data.category);
-      setAllSlides((prevSlide) => [...prevSlide, data]);
-      setCurrentSlide((prevCount) => prevCount + 1);
-      reset();
+      const slideLen = allSlides.length;
+      if (currentSlide === slideLen || currentSlide === -1) {
+        setAllSlides((prevSlide) => [...prevSlide, data]);
+        if (slideLen + 1 > 5) setCurrentSlide(5);
+        else setCurrentSlide(slideLen + 1);
+      } else {
+        const updatedSlides = [...allSlides];
+        updatedSlides[currentSlide] = data;
+        setAllSlides(updatedSlides);
+        setCurrentSlide(slideLen);
+      }
+      if (currentSlide < 5) {
+        reset({
+          heading: "",
+          description: "",
+          media: "",
+          category: "",
+        });
+      }
+      return true;
+    }
+    return false;
+  };
+
+  const handleHeaderNav = async (idx) => {
+    let noData = true;
+    Object.values(getValues()).forEach((value) => {
+      if (value !== "") noData = false;
+    });
+
+    if (noData) {
+      setCurrentSlide(idx);
+      reset(allSlides[idx]);
+      return;
+    }
+
+    if (await trigger()) {
+      if (await onSubmit(getValues())) {
+        reset(allSlides[idx]);
+        setCurrentSlide(idx);
+      }
     }
   };
 
-  const nextSlide = () => {
-    const nextIndex =
-      currentSlide === allSlides.length - 1 ? currentSlide : currentSlide + 1;
-    setCurrentSlide(nextIndex);
-    reset(allSlides[nextIndex]);
+  const handleFooterNav = async (type) => {
+    let noData = true;
+    Object.values(getValues()).forEach((value) => {
+      if (value !== "") noData = false;
+    });
+
+    let navIdx;
+    if (type === "prev") {
+      if (currentSlide > 5) navIdx = 5;
+      else navIdx = currentSlide === 0 ? currentSlide : currentSlide - 1;
+    } else if (type === "next") {
+      navIdx =
+        currentSlide === allSlides.length - 1 ? currentSlide : currentSlide + 1;
+    }
+
+    if (noData) {
+      setCurrentSlide(navIdx);
+      reset(allSlides[navIdx]);
+      return;
+    }
+
+    if (await trigger()) {
+      if (await onSubmit(getValues())) {
+        setCurrentSlide(navIdx);
+        reset(allSlides[navIdx]);
+      }
+    }
   };
 
-  const prevSlide = () => {
-    const prevIndex = currentSlide === 0 ? currentSlide : currentSlide - 1;
-    setCurrentSlide(prevIndex);
-    reset(allSlides[prevIndex]);
+  const deleteSlide = (e, index) => {
+    e.stopPropagation();
+
+    setAllSlides((prevSlides) => {
+      const newSlides = prevSlides.filter((_, i) => i !== index);
+      if (newSlides.length > 0 && index > 0) {
+        if (index < newSlides.length) {
+          reset(newSlides[index]);
+          setCurrentSlide(index);
+        } else {
+          reset(newSlides[newSlides.length - 1]);
+          setCurrentSlide(newSlides.length - 1);
+        }
+      } else if (newSlides.length > 0) {
+        reset(newSlides[0]);
+        setCurrentSlide(0);
+      }
+      return newSlides;
+    });
   };
 
-  const deleteSlide = (index) => {
-    setAllSlides((prevSlides) => prevSlides.filter((_, i) => i !== index));
-    reset(allSlides[index - 1]);
+  const createStory = async () => {
+    if (!userToken) {
+      alert("please login");
+      return;
+    }
+
+    let noData = true;
+    Object.values(getValues()).forEach((value) => {
+      if (value !== "") noData = false;
+    });
+
+    if (noData && allSlides.length > 2) {
+      createStoryApi(allSlides, userToken);
+      setAllSlides([]);
+      setCurrentSlide(-1);
+      onClose();
+      return;
+    }
+
+    if (await trigger()) {
+      if (await onSubmit(getValues())) {
+        setAllSlides((prevSlides) => {
+          const updatedSlides = [...prevSlides];
+          createStoryApi(updatedSlides, userToken);
+          return updatedSlides;
+        });
+
+        await createStoryApi(allSlides, userToken);
+
+        setAllSlides([]);
+        setCurrentSlide(-1);
+        onClose();
+      }
+    }
   };
 
-  console.log(allSlides);
+  useEffect(() => {
+    if (stories.length > 0) {
+      setAllSlides(stories);
+      setCurrentSlide(0);
+      reset(allSlides[0]);
+    }
+  }, [stories]);
 
   return (
     <Modal
@@ -138,25 +252,24 @@ function AddStory({ open, onClose }) {
           {allSlides.map((_, i) => (
             <div
               className="slideBox"
-              onClick={() => {
-                reset(allSlides[i]);
-                setCurrentSlide(i);
-              }}
+              onClick={() => handleHeaderNav(i)}
               key={i}
             >
               {i >= 3 && (
                 <img
                   src="/icons/x-circle.svg"
-                  onClick={() => deleteSlide(i)}
+                  onClick={(e) => deleteSlide(e, i)}
                   alt="x-circle"
                 />
               )}
-              <div className="card">Slide {i + 1}</div>
+              <div className={`card ${i === currentSlide ? "active" : ""}`}>
+                Slide {i + 1}
+              </div>
             </div>
           ))}
           {allSlides.length < 6 && (
             <div className="slideBox">
-              <div className="card active" onClick={handleSubmit(onSubmit)}>
+              <div className="card" onClick={handleSubmit(onSubmit)}>
                 Add +
               </div>
             </div>
@@ -236,15 +349,31 @@ function AddStory({ open, onClose }) {
           </div>
           <div className="storyAction">
             <div>
-              <button type="button" className="prevSlide" onClick={prevSlide}>
+              <button
+                type="button"
+                className="prevSlide"
+                onClick={() => handleFooterNav("prev")}
+                disabled={currentSlide === 0 || currentSlide === -1}
+              >
                 Previous
               </button>
-              <button type="button" className="nextSlide" onClick={nextSlide}>
+              <button
+                type="button"
+                className="nextSlide"
+                onClick={() => handleFooterNav("next")}
+                disabled={currentSlide >= allSlides.length - 1}
+              >
                 Next
               </button>
             </div>
             <div>
-              <button type="submit">Post</button>
+              <button
+                type="submit"
+                disabled={currentSlide < 2 && allSlides.length < 3}
+                onClick={createStory}
+              >
+                Post
+              </button>
             </div>
           </div>
           <video ref={videoRef} style={{ display: "none" }} />

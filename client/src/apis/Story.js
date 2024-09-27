@@ -16,12 +16,12 @@ export const fetchStoryByIdApi = async (storyId, slideId = 0, token = null) => {
     }
 };
 
-export const fetchStoryByCatagoryApi = async (catagory) => {
+export const fetchStoryByCatagoryApi = async (category) => {
     try {
-        const response = await fetch(`${baseURL}/story/catagory`, {
+        const response = await fetch(`${baseURL}/story/category`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ catagory })
+            body: JSON.stringify({ category })
         });
 
         const { status, data, msg } = await response.json();

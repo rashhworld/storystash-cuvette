@@ -1,7 +1,7 @@
 import React, { useState, useRef } from "react";
-import styles from "../assets/Catagories.module.css";
+import styles from "../assets/Categories.module.css";
 
-function Catagories({ catagories }) {
+function Categories({ categories }) {
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
@@ -24,14 +24,14 @@ function Catagories({ catagories }) {
 
   return (
     <div
-      className={`${styles.catagories}`}
+      className={`${styles.categories}`}
       ref={scrollContainerRef}
       onMouseDown={handleMouseDown}
       onMouseLeave={() => setIsDragging(false)}
       onMouseUp={() => setIsDragging(false)}
       onMouseMove={handleMouseMove}
     >
-      {catagories.map((cat, index) => (
+      {categories.map((cat, index) => (
         <div
           className={`${styles.card} ${index === 0 && styles.active}`}
           key={index}
@@ -44,4 +44,4 @@ function Catagories({ catagories }) {
   );
 }
 
-export default Catagories;
+export default Categories;
