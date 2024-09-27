@@ -3,7 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { fetchStoryByCatagoryApi } from "../apis/Story";
 import styles from "../assets/Stories.module.css";
 
-function Stories({ category, setStoryModal, userToken }) {
+function Stories({ category, setStoryModal, userStory }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const [storyData, setStoryData] = useState([]);
 
@@ -22,17 +22,20 @@ function Stories({ category, setStoryModal, userToken }) {
   };
 
   const fetchStoryByCatagory = async () => {
-    const data = await fetchStoryByCatagoryApi(category);
+    const data =
+      category === "User" ? userStory : await fetchStoryByCatagoryApi(category);
     if (data) setStoryData(data);
   };
 
   useEffect(() => {
     fetchStoryByCatagory();
-  }, []);
+  }, [category, userStory]);
 
   return (
     <section className={styles.storySection}>
-      <h2>Top Stories About {category}</h2>
+      <h2>
+        {category === "User" ? `Your Stories` : `Top Stories About ${category}`}
+      </h2>
       <div className={styles.storyList}>
         {storyData.length > 0 &&
           storyData.map((story, index) => {
@@ -68,7 +71,7 @@ function Stories({ category, setStoryModal, userToken }) {
       </div>
       {storyData.length > 4 && <button>See more</button>}
       {storyData.length === 0 && (
-        <p className={styles.nodata}>No stories Available</p>
+        <p className={styles.nodata}>No stories available</p>
       )}
     </section>
   );

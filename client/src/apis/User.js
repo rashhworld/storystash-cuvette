@@ -49,3 +49,53 @@ export const fetchUserApi = async (token) => {
         console.error(error);
     }
 };
+
+
+export const fetchUserStoryApi = async (token) => {
+    try {
+        const response = await fetch(`${baseURL}/user/story`, {
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${token}` },
+        });
+
+        const { status, data, msg } = await response.json();
+        return status === 'success' ? data : (toast.error(msg), undefined);
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+export const saveUserActionApi = async (storyId, userAction, token) => {
+    try {
+        const response = await fetch(`${baseURL}/user/action`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ storyId, userAction }),
+        });
+
+        const { status, data, msg } = await response.json();
+        return status === 'success' ? data : (toast.error(msg), undefined);
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+export const fetchUserActionApi = async (storyId, token) => {
+    try {
+        const response = await fetch(`${baseURL}/user/action/${storyId}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+        });
+
+        const { status, data, msg } = await response.json();
+        return status === 'success' ? data : (toast.error(msg), undefined);
+    } catch (error) {
+        console.error(error);
+    }
+};

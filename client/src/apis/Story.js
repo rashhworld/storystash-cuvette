@@ -1,12 +1,12 @@
 import { toast } from 'react-toastify';
 const baseURL = import.meta.env.VITE_API_BASE_URL;
 
-export const fetchStoryByIdApi = async (storyId, slideId = 0, token = null) => {
+export const fetchStoryByIdApi = async (storyId, token = null) => {
     try {
         const response = await fetch(`${baseURL}/story`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ storyId, slideId, token })
+            body: JSON.stringify({ storyId, token })
         });
 
         const { status, data, msg } = await response.json();
@@ -40,6 +40,24 @@ export const createStoryApi = async (storyData, token) => {
                 'Authorization': `Bearer ${token}`
             },
             body: JSON.stringify(storyData)
+        });
+
+        const { status, data, msg } = await response.json();
+        return status === 'success' ? data : (toast.error(msg), undefined);
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+export const updateSlideLikeApi = async (storyId, slideId, like, token) => {
+    try {
+        const response = await fetch(`${baseURL}/story/slide/like`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ storyId, slideId, like })
         });
 
         const { status, data, msg } = await response.json();

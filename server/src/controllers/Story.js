@@ -60,6 +60,25 @@ const createStory = async (req, res, next) => {
     }
 };
 
+const updateSlideLike = async (req, res, next) => {
+    try {
+        const { storyId, slideId, like } = req.body;
+        const story = await validateStoryData(storyId);
+
+        if (slideId < 0 || slideId >= story.slides.length)
+            throw { message: "Slide not found.", code: 404 };
+
+        story.slides[slideId].likes += like;
+        story.markModified('slides');
+        const updatedStory = await story.save();
+        const updatedLike = updatedStory.slides[slideId].likes;
+
+        res.status(200).json({ status: "success", data: updatedLike });
+    } catch (err) {
+        next(err);
+    }
+};
+
 const downloadStory = async (req, res, next) => {
     const { source } = req.body;
     try {
@@ -71,4 +90,4 @@ const downloadStory = async (req, res, next) => {
     }
 };
 
-module.exports = { fetchStoryById, fetchStoryByCategory, createStory, downloadStory };
+module.exports = { fetchStoryById, fetchStoryByCategory, createStory, updateSlideLike, downloadStory };

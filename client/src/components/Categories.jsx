@@ -1,7 +1,8 @@
 import React, { useState, useRef } from "react";
 import styles from "../assets/Categories.module.css";
 
-function Categories({ categories }) {
+function Categories({ categories, filterCatagory }) {
+  const [activeCatagory, setActiveCatagory] = useState("All");
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
@@ -33,9 +34,15 @@ function Categories({ categories }) {
     >
       {categories.map((cat, index) => (
         <div
-          className={`${styles.card} ${index === 0 && styles.active}`}
+          className={`${styles.card} ${
+            activeCatagory === cat.name ? styles.active : ""
+          }`}
           key={index}
           style={{ backgroundImage: `url(${cat.img})` }}
+          onClick={() => {
+            filterCatagory(cat.name);
+            setActiveCatagory(cat.name);
+          }}
         >
           <p>{cat.name}</p>
         </div>

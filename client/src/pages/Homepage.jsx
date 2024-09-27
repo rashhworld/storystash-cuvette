@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
-import { fetchUserApi } from "../apis/User";
+import { fetchUserApi, fetchUserStoryApi } from "../apis/User";
 
 import Navbar from "../components/Navbar";
 import Categories from "../components/Categories";
@@ -10,7 +10,7 @@ import UserAuth from "../components/modals/UserAuth";
 import ViewStory from "../components/modals/ViewStory";
 import AddStory from "../components/modals/AddStory";
 
-const categories = [
+const categoryList = [
   {
     name: "All",
     img: "https://www.quadrant.io/hs-fs/hubfs/philipp-kammerer-6Mxb_mZ_Q8E-unsplash.jpg",
@@ -46,15 +46,25 @@ function Homepage() {
 
   const [userToken, setUserToken] = useState(token);
   const [userData, setUserData] = useState({});
+  const [userStory, setUserStory] = useState([]);
 
+  const [category, setCategory] = useState(categoryList);
   const [storyModal, setStoryModal] = useState(
     searchParams.has("story") && searchParams.has("slide")
   );
   const [addStoryModal, setAddStoryModal] = useState(false);
 
+  const filterCatagory = (category) => {
+    const data = categoryList.filter((item) => item.name == category);
+    category !== "All" ? setCategory(data) : setCategory(categoryList);
+  };
+
   const fetchUser = async () => {
     const data = await fetchUserApi(userToken);
-    if (data) setUserData(data);
+    if (data) {
+      setUserData(data);
+      setUserStory(await fetchUserStoryApi(userToken));
+    }
   };
 
   useEffect(() => {
@@ -62,8 +72,15 @@ function Homepage() {
   }, [token]);
 
   useEffect(() => {
-    userToken ? fetchUser() : setUserData({});
+    if (userToken) {
+      fetchUser();
+    } else {
+      setUserData({});
+      setUserStory([]);
+    }
   }, [userToken]);
+
+  // console.log(userStory);
 
   return (
     <>
@@ -76,8 +93,19 @@ function Homepage() {
         userData={userData}
         setAddStoryModal={setAddStoryModal}
       />
-      <Categories categories={categories} />
-      {categories
+      <Categories
+        categories={categoryList}
+        filterCatagory={(category) => filterCatagory(category)}
+      />
+      {userStory.length > 0 && (
+        <Stories
+          category="User"
+          setStoryModal={setStoryModal}
+          userToken={userToken}
+          userStory={userStory}
+        />
+      )}
+      {category
         .filter((cat) => cat.name !== "All")
         .map((cat, index) => (
           <Stories

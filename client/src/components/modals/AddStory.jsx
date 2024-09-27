@@ -4,16 +4,16 @@ import { createStoryApi } from "../../apis/Story";
 import { Modal } from "react-responsive-modal";
 import "../../assets/modals/AddStory.css";
 
-function AddStory({ open, onClose, userToken, stories }) {
+function AddStory({ open, onClose, userToken, storyData }) {
   const {
     register,
     handleSubmit,
     reset,
+    formState: { errors },
     setError,
     clearErrors,
     trigger,
     getValues,
-    formState: { errors },
   } = useForm();
 
   const [allSlides, setAllSlides] = useState([]);
@@ -181,6 +181,7 @@ function AddStory({ open, onClose, userToken, stories }) {
         reset(newSlides[0]);
         setCurrentSlide(0);
       }
+      console.log("newSlide: ", newSlides);
       return newSlides;
     });
   };
@@ -205,14 +206,20 @@ function AddStory({ open, onClose, userToken, stories }) {
     }
 
     if (await trigger()) {
-      if (await onSubmit(getValues())) {
-        setAllSlides((prevSlides) => {
-          const updatedSlides = [...prevSlides];
-          createStoryApi(updatedSlides, userToken);
-          return updatedSlides;
-        });
+      const val = getValues();
+      val.likes = 0;
 
-        await createStoryApi(allSlides, userToken);
+      const updatedSlides = [...allSlides];
+
+      if (currentSlide >= 0 && currentSlide < updatedSlides.length) {
+        updatedSlides[currentSlide] = val;
+      } else {
+        updatedSlides.push(val);
+      }
+
+      if (await onSubmit(getValues())) {
+        setAllSlides(updatedSlides);
+        await createStoryApi(updatedSlides, userToken);
 
         setAllSlides([]);
         setCurrentSlide(-1);
@@ -220,14 +227,6 @@ function AddStory({ open, onClose, userToken, stories }) {
       }
     }
   };
-
-  useEffect(() => {
-    if (stories.length > 0) {
-      setAllSlides(stories);
-      setCurrentSlide(0);
-      reset(allSlides[0]);
-    }
-  }, [stories]);
 
   return (
     <Modal

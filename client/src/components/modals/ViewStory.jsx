@@ -2,7 +2,12 @@ import React, { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Modal } from "react-responsive-modal";
 import { toast } from "react-toastify";
-import { fetchStoryByIdApi, downloadStoryApi } from "../../apis/Story";
+import { saveUserActionApi, fetchUserActionApi } from "../../apis/User";
+import {
+  fetchStoryByIdApi,
+  updateSlideLikeApi,
+  downloadStoryApi,
+} from "../../apis/Story";
 import "../../assets/modals/ViewStory.css";
 
 function ViewStory({ open, onClose, authType, userToken }) {
@@ -14,7 +19,7 @@ function ViewStory({ open, onClose, authType, userToken }) {
   const slideParam = parseInt(searchParams.get("slide"), 10) || 0;
   const slideId = storyData[slideParam] !== undefined ? slideParam : 0;
   const [activeSlide, setActiveSlide] = useState(slideId);
-  const [slideAction, setSlideAction] = useState({ like: [], bookmark: [] });
+  const [slideAction, setSlideAction] = useState({});
 
   const [isMuted, setIsMuted] = useState(true);
   const videoRef = useRef(null);
@@ -91,11 +96,37 @@ function ViewStory({ open, onClose, authType, userToken }) {
     });
   };
 
+  const saveUserAction = async () => {
+    await saveUserActionApi(storyId, slideAction, userToken);
+  };
+
+  const updateSlideLike = async () => {
+    const like = slideAction.like.includes(activeSlide) ? -1 : 1;
+    const updatedLikesCount = await updateSlideLikeApi(
+      storyId,
+      activeSlide,
+      like,
+      userToken
+    );
+    setStoryData((prevData) => {
+      const newData = [...prevData];
+      newData[activeSlide].likes = updatedLikesCount;
+      return newData;
+    });
+  };
+
   useEffect(() => {
     (async () => {
-      const data = storyId && (await fetchStoryByIdApi(storyId));
-      if (data) setStoryData(data);
-      else onClose();
+      if (storyId) {
+        const story = await fetchStoryByIdApi(storyId);
+        const action =
+          userToken && (await fetchUserActionApi(storyId, userToken));
+        if (story) {
+          setStoryData(story);
+          setSlideAction(action);
+          if (slideParam < 0 || slideParam >= story.length) onClose();
+        } else onClose();
+      }
     })();
   }, [storyId]);
 
@@ -103,19 +134,15 @@ function ViewStory({ open, onClose, authType, userToken }) {
     if (open) setActiveSlide(slideId);
   }, [open, slideId]);
 
-  useEffect(() => {
-    //fetch story data
-    //fetch user data to check isliked, isbookmarked
-    //fetch all userdata  to count total likes
-    // after fetch total users like, set the storyData like  to total like
-  }, []);
-
-  // console.log(storyData);
+  // console.log(slideAction);
 
   return (
     <Modal
       open={open}
-      onClose={onClose}
+      onClose={() => {
+        onClose();
+        saveUserAction();
+      }}
       center
       classNames={{ modal: "viewStory" }}
       showCloseIcon={false}
@@ -168,7 +195,7 @@ function ViewStory({ open, onClose, authType, userToken }) {
             <div className="action">
               <div
                 className={`bookmark ${
-                  slideAction.bookmark.includes(activeSlide) && "active"
+                  slideAction?.bookmark?.includes(activeSlide) && "active"
                 }`}
                 onClick={() => handleSlideAction("bookmark")}
               >
@@ -189,13 +216,18 @@ function ViewStory({ open, onClose, authType, userToken }) {
                 </svg>
               </div>
               <div
-                className={`like ${slideAction.like.includes(activeSlide) && "active"}`}
-                onClick={() => handleSlideAction("like")}
+                className={`like ${
+                  slideAction?.like?.includes(activeSlide) && "active"
+                }`}
+                onClick={() => {
+                  handleSlideAction("like");
+                  updateSlideLike();
+                }}
               >
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path d="M7 3c-1.535 0-3.078.5-4.25 1.7-2.343 2.4-2.279 6.1 0 8.5L12 23l9.25-9.8c2.279-2.4 2.343-6.1 0-8.5-2.343-2.3-6.157-2.3-8.5 0l-.75.8-.75-.8C10.078 3.5 8.536 3 7 3" />
                 </svg>
-                <p>{likes}</p>
+                <p>{likes > 0 && likes}</p>
               </div>
             </div>
           </div>
