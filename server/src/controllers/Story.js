@@ -51,10 +51,14 @@ const fetchStoryByCategory = async (req, res, next) => {
 const createStory = async (req, res, next) => {
     try {
         const userId = req.user;
-        const storyData = req.body;
-
-        await Story.create({ userId, slides: storyData });
-        res.status(200).json({ status: "success", msg: "Story created successfully." });
+        const { storyData, storyId } = req.body;
+        if (storyId) {
+            await Story.findByIdAndUpdate(storyId, { userId, slides: storyData }, { new: true });
+            res.status(200).json({ status: "success", msg: "Story updated successfully." });
+        } else {
+            await Story.create({ userId, slides: storyData });
+            res.status(201).json({ status: "success", msg: "Story created successfully." });
+        }
     } catch (err) {
         next(err);
     }

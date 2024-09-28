@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 import { fetchUserApi, fetchUserStoryApi } from "../apis/User";
+import { fetchStoryByIdApi } from "../apis/Story";
 
 import Navbar from "../components/Navbar";
 import Categories from "../components/Categories";
@@ -48,6 +49,9 @@ function Homepage() {
   const [userData, setUserData] = useState({});
   const [userStory, setUserStory] = useState([]);
 
+  const [storyId, setStoryId] = useState(null);
+  const [storyData, setStoryData] = useState([]);
+
   const [category, setCategory] = useState(categoryList);
   const [storyModal, setStoryModal] = useState(
     searchParams.has("story") && searchParams.has("slide")
@@ -65,6 +69,15 @@ function Homepage() {
     if (data) {
       setUserData(data);
       setUserStory(await fetchUserStoryApi(userToken));
+    }
+  };
+
+  const fetchStoryById = async (storyId) => {
+    const data = await fetchStoryByIdApi(storyId);
+    if (data) {
+      setStoryId(storyId);
+      setStoryData(data);
+      setAddStoryModal(true);
     }
   };
 
@@ -88,7 +101,7 @@ function Homepage() {
     else setYourStory(false);
   }, [searchParams]);
 
-  // console.log(userStory);
+  // console.log(storyData);
 
   return (
     <>
@@ -108,12 +121,14 @@ function Homepage() {
         />
       )}
       {userStory.length > 0 && (
-        <Stories
-          storyTitle="Stories"
-          setStoryModal={setStoryModal}
-          userToken={userToken}
-          userStory={userStory}
-        />
+        <div className="yourStory">
+          <Stories
+            storyTitle="Stories"
+            setStoryModal={setStoryModal}
+            userStory={userStory}
+            editStory={(storyId) => fetchStoryById(storyId)}
+          />
+        </div>
       )}
       {!yourStory &&
         category
@@ -122,7 +137,6 @@ function Homepage() {
             <Stories
               category={cat.name}
               setStoryModal={setStoryModal}
-              userToken={userToken}
               key={index}
             />
           ))}
@@ -148,9 +162,13 @@ function Homepage() {
       />
       <AddStory
         open={addStoryModal}
-        onClose={() => setAddStoryModal(false)}
+        onClose={() => {
+          setAddStoryModal(false);
+          setStoryData([]);
+        }}
         userToken={userToken}
-        stories={[]}
+        storyId={storyId}
+        storyData={storyData}
       />
     </>
   );

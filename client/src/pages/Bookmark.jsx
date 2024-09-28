@@ -52,12 +52,12 @@ function Bookmark() {
         userData={userData}
         setAddStoryModal={setAddStoryModal}
       />
-      {userBookmark && userBookmark.length > 0 && (
-        <Stories
-          storyTitle="Bookmarks"
-          userToken={userToken}
-          userStory={userBookmark}
-        />
+      {userBookmark && userBookmark.length > 0 ? (
+        <Stories storyTitle="Bookmarks" userStory={userBookmark} />
+      ) : (
+        <p style={{ textAlign: "center", marginTop: "50px" }}>
+          No bookmarks found.
+        </p>
       )}
       <UserAuth
         open={authModal}
@@ -69,7 +69,7 @@ function Bookmark() {
         open={addStoryModal}
         onClose={() => setAddStoryModal(false)}
         userToken={userToken}
-        stories={[]}
+        storyData={[]}
       />
     </>
   );

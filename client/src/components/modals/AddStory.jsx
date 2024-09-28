@@ -4,7 +4,13 @@ import { createStoryApi } from "../../apis/Story";
 import { Modal } from "react-responsive-modal";
 import "../../assets/modals/AddStory.css";
 
-function AddStory({ open, onClose, userToken, storyData }) {
+function AddStory({
+  open,
+  onClose,
+  userToken,
+  storyId = null,
+  storyData = [],
+}) {
   const {
     register,
     handleSubmit,
@@ -34,9 +40,28 @@ function AddStory({ open, onClose, userToken, storyData }) {
   const validateMediaUrl = async (url) => {
     const ext = url.split(".").pop().toLowerCase();
 
+    setError("media", {
+      type: "manual",
+      message: "Checking media. Please wait ...",
+    });
+
     if (mediaTypes.image.includes(ext)) {
-      clearErrors("media");
-      return true;
+      const img = new Image();
+      img.src = url;
+
+      return new Promise((resolve) => {
+        img.onload = () => {
+          clearErrors("media");
+          resolve(true);
+        };
+        img.onerror = () => {
+          setError("media", {
+            type: "manual",
+            message: "Failed to load image. Please check the URL.",
+          });
+          resolve(false);
+        };
+      });
     }
 
     if (mediaTypes.video.includes(ext)) {
@@ -89,9 +114,9 @@ function AddStory({ open, onClose, userToken, storyData }) {
     const isValid = await validateMediaUrl(data.media);
 
     if (isValid) {
-      data.likes = 0;
       changeCategory(data.category);
       const slideLen = allSlides.length;
+
       if (currentSlide === slideLen || currentSlide === -1) {
         setAllSlides((prevSlide) => [...prevSlide, data]);
         if (slideLen + 1 > 5) setCurrentSlide(5);
@@ -206,27 +231,48 @@ function AddStory({ open, onClose, userToken, storyData }) {
     }
 
     if (await trigger()) {
-      const val = getValues();
-      val.likes = 0;
+      const values = getValues();
+      const tempAllSlides = [...allSlides];
 
-      const updatedSlides = [...allSlides];
-
-      if (currentSlide >= 0 && currentSlide < updatedSlides.length) {
-        updatedSlides[currentSlide] = val;
+      if (currentSlide >= 0 && currentSlide < tempAllSlides.length) {
+        tempAllSlides[currentSlide] = values;
       } else {
-        updatedSlides.push(val);
+        tempAllSlides.push(values);
       }
 
-      if (await onSubmit(getValues())) {
-        setAllSlides(updatedSlides);
-        await createStoryApi(updatedSlides, userToken);
+      const updatedSlides = tempAllSlides.map((slide) => {
+        return {
+          ...slide,
+          likes: slide.likes || 0,
+        };
+      });
 
-        setAllSlides([]);
-        setCurrentSlide(-1);
+      if (await onSubmit(values)) {
+        setAllSlides(updatedSlides);
+        await createStoryApi(updatedSlides, userToken, storyId);
         onClose();
       }
     }
   };
+
+  useEffect(() => {
+    reset({
+      heading: "",
+      description: "",
+      media: "",
+      category: "",
+    });
+    if (storyData.length > 0) {
+      setAllSlides(storyData);
+      reset(storyData[0]);
+      setCurrentSlide(0);
+    } else {
+      setAllSlides([]);
+      setCurrentSlide(-1);
+    }
+  }, [storyData]);
+
+  // console.log(storyData);
 
   return (
     <Modal

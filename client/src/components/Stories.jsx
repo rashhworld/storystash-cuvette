@@ -3,7 +3,13 @@ import { useSearchParams } from "react-router-dom";
 import { fetchStoryByCatagoryApi } from "../apis/Story";
 import styles from "../assets/Stories.module.css";
 
-function Stories({ category, setStoryModal, storyTitle, userStory }) {
+function Stories({
+  category,
+  setStoryModal,
+  editStory,
+  storyTitle,
+  userStory,
+}) {
   const [searchParams, setSearchParams] = useSearchParams();
   const currentParams = Object.fromEntries(searchParams.entries());
 
@@ -73,6 +79,18 @@ function Stories({ category, setStoryModal, storyTitle, userStory }) {
                   <h3>{heading}</h3>
                   <p>{description}</p>
                 </div>
+                {storyTitle === "Stories" && (
+                  <button
+                    className={styles.editStoryBtn}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      editStory(story._id);
+                    }}
+                  >
+                    <img src="/icons/pen.svg" alt="pen" />
+                    <span>Edit</span>
+                  </button>
+                )}
               </div>
             );
           })}
