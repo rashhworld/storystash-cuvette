@@ -65,6 +65,20 @@ export const fetchUserStoryApi = async (token) => {
     }
 };
 
+export const fetchUserBookmarkApi = async (token) => {
+    try {
+        const response = await fetch(`${baseURL}/user/bookmark`, {
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${token}` },
+        });
+
+        const { status, data, msg } = await response.json();
+        return status === 'success' ? data : (toast.error(msg), undefined);
+    } catch (error) {
+        console.error(error);
+    }
+};
+
 export const saveUserActionApi = async (storyId, userAction, token) => {
     try {
         const response = await fetch(`${baseURL}/user/action`, {

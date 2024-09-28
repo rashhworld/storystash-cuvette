@@ -72,12 +72,42 @@ const fetchUserStory = async (req, res, next) => {
             {
                 $group: {
                     _id: '$_id',
-                    firstSlide: { $first: '$slides' }
+                    slide: { $first: '$slides' }
                 }
             }
         ]);
 
         res.status(200).json({ status: "success", data: results });
+    } catch (err) {
+        next(err);
+    }
+};
+
+const fetchUserBookmark = async (req, res, next) => {
+    try {
+        const user = await User.findById(req.user, { userAction: 1 });
+        const bookmarks = user.userAction
+            .filter(action => action.bookmark.length > 0)
+            .map(action => ({
+                storyId: action.storyId,
+                bookmarks: action.bookmark
+            }));
+
+        const finalResult = [];
+        await Promise.all(bookmarks.map(async (b) => {
+            const stories = await Story.find({ _id: b.storyId });
+            stories.forEach(story => {
+                const matchedSlides = b.bookmarks.map(index => story.slides[index]).filter(slide => slide);
+                matchedSlides.forEach(slide => {
+                    finalResult.push({
+                        _id: story._id,
+                        slide: slide
+                    });
+                });
+            });
+        }));
+
+        res.status(200).json({ status: "success", data: finalResult });
     } catch (err) {
         next(err);
     }
@@ -136,4 +166,4 @@ const fetchUserAction = async (req, res, next) => {
     }
 }
 
-module.exports = { loginUser, registerUser, fetchUser, fetchUserStory, saveUserAction, fetchUserAction };
+module.exports = { loginUser, registerUser, fetchUser, fetchUserStory, fetchUserBookmark, saveUserAction, fetchUserAction };

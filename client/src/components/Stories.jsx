@@ -3,9 +3,12 @@ import { useSearchParams } from "react-router-dom";
 import { fetchStoryByCatagoryApi } from "../apis/Story";
 import styles from "../assets/Stories.module.css";
 
-function Stories({ category, setStoryModal, userStory }) {
+function Stories({ category, setStoryModal, storyTitle, userStory }) {
   const [searchParams, setSearchParams] = useSearchParams();
+  const currentParams = Object.fromEntries(searchParams.entries());
+
   const [storyData, setStoryData] = useState([]);
+  const [visibleCount, setVisibleCount] = useState(4);
 
   const getMediaType = (media) => {
     const extension = media.split(".").pop().toLowerCase();
@@ -22,8 +25,7 @@ function Stories({ category, setStoryModal, userStory }) {
   };
 
   const fetchStoryByCatagory = async () => {
-    const data =
-      category === "User" ? userStory : await fetchStoryByCatagoryApi(category);
+    const data = category ? await fetchStoryByCatagoryApi(category) : userStory;
     if (data) setStoryData(data);
   };
 
@@ -34,18 +36,24 @@ function Stories({ category, setStoryModal, userStory }) {
   return (
     <section className={styles.storySection}>
       <h2>
-        {category === "User" ? `Your Stories` : `Top Stories About ${category}`}
+        {storyTitle ? `Your ${storyTitle}` : `Top Stories About ${category}`}
       </h2>
       <div className={styles.storyList}>
         {storyData.length > 0 &&
-          storyData.map((story, index) => {
-            const { heading, description, media } = story.firstSlide;
+          storyData.slice(0, visibleCount).map((story, index) => {
+            const { heading, description, media } = story.slide;
             return (
               <div
                 className={styles.card}
                 onClick={() => {
-                  setStoryModal(true);
-                  setSearchParams({ story: story._id, slide: 0 });
+                  if (setStoryModal) {
+                    setStoryModal(true);
+                    setSearchParams({
+                      ...currentParams,
+                      story: story._id,
+                      slide: 0,
+                    });
+                  }
                 }}
                 key={index}
               >
@@ -69,7 +77,11 @@ function Stories({ category, setStoryModal, userStory }) {
             );
           })}
       </div>
-      {storyData.length > 4 && <button>See more</button>}
+      {visibleCount < storyData.length && (
+        <button onClick={() => setVisibleCount(storyData.length)}>
+          See more
+        </button>
+      )}
       {storyData.length === 0 && (
         <p className={styles.nodata}>No stories available</p>
       )}

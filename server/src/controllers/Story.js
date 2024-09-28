@@ -37,7 +37,7 @@ const fetchStoryByCategory = async (req, res, next) => {
             {
                 $group: {
                     _id: '$_id',
-                    firstSlide: { $first: '$slides' }
+                    slide: { $first: '$slides' }
                 }
             }
         ]);
@@ -66,7 +66,7 @@ const updateSlideLike = async (req, res, next) => {
         const story = await validateStoryData(storyId);
 
         if (slideId < 0 || slideId >= story.slides.length)
-            throw { message: "Slide not found.", code: 404 };
+            throw Object.assign(Error("Slide not found"), { code: 404 });
 
         story.slides[slideId].likes += like;
         story.markModified('slides');

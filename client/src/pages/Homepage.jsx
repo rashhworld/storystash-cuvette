@@ -53,6 +53,7 @@ function Homepage() {
     searchParams.has("story") && searchParams.has("slide")
   );
   const [addStoryModal, setAddStoryModal] = useState(false);
+  const [yourStory, setYourStory] = useState(searchParams.has("yourstory"));
 
   const filterCatagory = (category) => {
     const data = categoryList.filter((item) => item.name == category);
@@ -74,11 +75,18 @@ function Homepage() {
   useEffect(() => {
     if (userToken) {
       fetchUser();
+      yourStory && setAuthModal(false);
     } else {
       setUserData({});
       setUserStory([]);
+      yourStory && setAuthModal(true);
     }
   }, [userToken]);
+
+  useEffect(() => {
+    if (searchParams.get("yourstory")) setYourStory(true);
+    else setYourStory(false);
+  }, [searchParams]);
 
   // console.log(userStory);
 
@@ -93,33 +101,38 @@ function Homepage() {
         userData={userData}
         setAddStoryModal={setAddStoryModal}
       />
-      <Categories
-        categories={categoryList}
-        filterCatagory={(category) => filterCatagory(category)}
-      />
+      {!yourStory && (
+        <Categories
+          categories={categoryList}
+          filterCatagory={(category) => filterCatagory(category)}
+        />
+      )}
       {userStory.length > 0 && (
         <Stories
-          category="User"
+          storyTitle="Stories"
           setStoryModal={setStoryModal}
           userToken={userToken}
           userStory={userStory}
         />
       )}
-      {category
-        .filter((cat) => cat.name !== "All")
-        .map((cat, index) => (
-          <Stories
-            category={cat.name}
-            setStoryModal={setStoryModal}
-            userToken={userToken}
-            key={index}
-          />
-        ))}
+      {!yourStory &&
+        category
+          .filter((cat) => cat.name !== "All")
+          .map((cat, index) => (
+            <Stories
+              category={cat.name}
+              setStoryModal={setStoryModal}
+              userToken={userToken}
+              key={index}
+            />
+          ))}
       <ViewStory
         open={storyModal}
         onClose={() => {
           setStoryModal(false);
-          setSearchParams({});
+          searchParams.delete("story");
+          searchParams.delete("slide");
+          setSearchParams(searchParams);
         }}
         authType={(type) => {
           setAuthType(type);

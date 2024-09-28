@@ -1,11 +1,12 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
+
+import "./App.css";
 import "react-toastify/dist/ReactToastify.css";
+import "react-responsive-modal/styles.css";
 
 import Homepage from "./pages/Homepage";
-import "./App.css";
-
-import "react-responsive-modal/styles.css";
+import Bookmark from "./pages/Bookmark";
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
       <ToastContainer position="bottom-right" closeButton={false} />
       <Routes>
         <Route path="/" element={<Homepage />} />
+        <Route path="/bookmark" element={<Bookmark />} />
       </Routes>
     </Router>
   );

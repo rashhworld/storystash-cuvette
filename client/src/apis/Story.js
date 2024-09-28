@@ -1,12 +1,12 @@
 import { toast } from 'react-toastify';
 const baseURL = import.meta.env.VITE_API_BASE_URL;
 
-export const fetchStoryByIdApi = async (storyId, token = null) => {
+export const fetchStoryByIdApi = async (storyId) => {
     try {
         const response = await fetch(`${baseURL}/story`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ storyId, token })
+            body: JSON.stringify({ storyId })
         });
 
         const { status, data, msg } = await response.json();

@@ -17,6 +17,7 @@
     font-weight: 700;
     color: #FF7373;
     text-transform: uppercase;
+    cursor: pointer;
 }
 
 .logo span {

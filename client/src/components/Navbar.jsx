@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import styles from "../assets/Navbar.module.css";
 
 function Navbar({ authType, userData, setUserToken, setAddStoryModal }) {
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+
   const [showMenu, setShowMenu] = useState(false);
   const [mobileMenu, setMobileMenu] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -23,14 +27,14 @@ function Navbar({ authType, userData, setUserToken, setAddStoryModal }) {
 
   return (
     <nav className={styles.nav}>
-      <div className={styles.logo}>
+      <div className={styles.logo} onClick={() => navigate("/")}>
         Story<span>Stash</span>
       </div>
       <div className={styles.menu}>
         <div className={styles.menuList}>
           {isLoggedIn ? (
             <>
-              <button>
+              <button onClick={() => navigate("/bookmark")}>
                 <img src="/icons/save.svg" height={20} alt="save" />
                 Bookmark
               </button>
@@ -74,14 +78,23 @@ function Navbar({ authType, userData, setUserToken, setAddStoryModal }) {
                   )}
                   <h4>{userData.userName}</h4>
                 </div>
-                {mobileMenu && <button>Your Story</button>}
+                {mobileMenu && (
+                  <button
+                    onClick={() => {
+                      setSearchParams({ yourstory: true });
+                      setShowMenu(false);
+                    }}
+                  >
+                    Your Story
+                  </button>
+                )}
                 {mobileMenu && (
                   <button onClick={() => setAddStoryModal(true)}>
                     Add Story
                   </button>
                 )}
                 {mobileMenu && (
-                  <button>
+                  <button onClick={() => navigate("/bookmark")}>
                     <img src="/icons/save.svg" height={20} alt="save" />
                     Bookmark
                   </button>

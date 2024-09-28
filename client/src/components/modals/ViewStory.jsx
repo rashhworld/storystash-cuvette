@@ -97,7 +97,7 @@ function ViewStory({ open, onClose, authType, userToken }) {
   };
 
   const saveUserAction = async () => {
-    await saveUserActionApi(storyId, slideAction, userToken);
+    userToken && (await saveUserActionApi(storyId, slideAction, userToken));
   };
 
   const updateSlideLike = async () => {
@@ -128,7 +128,7 @@ function ViewStory({ open, onClose, authType, userToken }) {
         } else onClose();
       }
     })();
-  }, [storyId]);
+  }, [storyId, userToken]);
 
   useEffect(() => {
     if (open) setActiveSlide(slideId);
