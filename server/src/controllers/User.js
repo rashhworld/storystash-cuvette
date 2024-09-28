@@ -118,31 +118,20 @@ const saveUserAction = async (req, res, next) => {
         const { storyId, userAction } = req.body;
         await validateStoryData(storyId);
 
-        const result = await User.findOneAndUpdate(
-            { _id: req.user, 'userAction.storyId': storyId },
-            {
-                $set: {
-                    'userAction.$.like': userAction.like,
-                    'userAction.$.bookmark': userAction.bookmark
-                }
-            },
-            { new: true }
-        );
-
-        if (!result) {
-            const newUserAction = {
-                storyId,
+        const user = await User.findById(req.user);
+        const existingAction = user.userAction.find(action => action.storyId === storyId);
+        if (existingAction) {
+            existingAction.like = userAction.like;
+            existingAction.bookmark = userAction.bookmark;
+        } else {
+            user.userAction.push({
+                storyId: storyId,
                 like: userAction.like,
                 bookmark: userAction.bookmark
-            };
-
-            await User.findByIdAndUpdate(
-                req.user,
-                { $push: { userAction: newUserAction } },
-                { new: true }
-            );
+            });
         }
 
+        await user.save();
         res.status(200).json({ status: "success", data: "" });
     } catch (err) {
         next(err);
