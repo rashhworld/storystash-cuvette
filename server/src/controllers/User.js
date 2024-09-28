@@ -115,23 +115,37 @@ const fetchUserBookmark = async (req, res, next) => {
 
 const saveUserAction = async (req, res, next) => {
     try {
+        const userId = req.user;
         const { storyId, userAction } = req.body;
+
         await validateStoryData(storyId);
 
-        const user = await User.findById(req.user);
-        const existingAction = user.userAction.find(action => action.storyId === storyId);
-        if (existingAction) {
-            existingAction.like = userAction.like;
-            existingAction.bookmark = userAction.bookmark;
-        } else {
-            user.userAction.push({
-                storyId: storyId,
-                like: userAction.like,
-                bookmark: userAction.bookmark
-            });
+        const result = await User.findOneAndUpdate(
+            { _id: userId, 'userAction.storyId': storyId },
+            {
+                $set: {
+                    'userAction.$.like': userAction.like,
+                    'userAction.$.bookmark': userAction.bookmark
+                }
+            },
+            { new: true }
+        );
+
+        if (!result) {
+            await User.findByIdAndUpdate(
+                { _id: userId },
+                {
+                    $push: {
+                        userAction: {
+                            storyId,
+                            like: userAction.like,
+                            bookmark: userAction.bookmark
+                        }
+                    }
+                },
+            );
         }
 
-        await user.save();
         res.status(200).json({ status: "success", data: "" });
     } catch (err) {
         next(err);
