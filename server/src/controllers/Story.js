@@ -72,7 +72,8 @@ const updateSlideLike = async (req, res, next) => {
         if (slideId < 0 || slideId >= story.slides.length)
             throw Object.assign(Error("Slide not found"), { code: 404 });
 
-        story.slides[slideId].likes += like;
+        story.slides[slideId].likes = Math.max(0, story.slides[slideId].likes + like);
+
         story.markModified('slides');
         const updatedStory = await story.save();
         const updatedLike = updatedStory.slides[slideId].likes;

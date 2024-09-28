@@ -15,11 +15,11 @@ function AddStory({
     register,
     handleSubmit,
     reset,
-    formState: { errors },
     setError,
     clearErrors,
     trigger,
     getValues,
+    formState: { errors },
   } = useForm();
 
   const [allSlides, setAllSlides] = useState([]);
@@ -133,6 +133,7 @@ function AddStory({
           description: "",
           media: "",
           category: "",
+          likes: 0,
         });
       }
       return true;
@@ -232,20 +233,13 @@ function AddStory({
 
     if (await trigger()) {
       const values = getValues();
-      const tempAllSlides = [...allSlides];
+      const updatedSlides = [...allSlides];
 
-      if (currentSlide >= 0 && currentSlide < tempAllSlides.length) {
-        tempAllSlides[currentSlide] = values;
+      if (currentSlide >= 0 && currentSlide < updatedSlides.length) {
+        updatedSlides[currentSlide] = values;
       } else {
-        tempAllSlides.push(values);
+        updatedSlides.push(values);
       }
-
-      const updatedSlides = tempAllSlides.map((slide) => {
-        return {
-          ...slide,
-          likes: slide.likes || 0,
-        };
-      });
 
       if (await onSubmit(values)) {
         setAllSlides(updatedSlides);
@@ -261,6 +255,7 @@ function AddStory({
       description: "",
       media: "",
       category: "",
+      likes: 0,
     });
     if (storyData.length > 0) {
       setAllSlides(storyData);
@@ -389,6 +384,21 @@ function AddStory({
               </select>
               {errors.category && (
                 <span className="error">{errors.category.message}</span>
+              )}
+            </div>
+          </div>
+          <div className="inputs" style={{ display: "none" }}>
+            <label htmlFor="likes">Likes</label>
+            <div className="group">
+              <input
+                type="number"
+                id="likes"
+                {...register("likes", {
+                  required: "likes field is required",
+                })}
+              />
+              {errors.likes && (
+                <span className="error">{errors.likes.message}</span>
               )}
             </div>
           </div>
