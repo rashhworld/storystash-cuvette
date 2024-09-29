@@ -65,7 +65,7 @@ function Navbar({ authType, userData, setUserToken, setAddStoryModal }) {
                 <div className={styles.profile}>
                   {mobileMenu && (
                     <img
-                      src="https://rashhworld.github.io/assets/images/profile.webp"
+                      src="/user.png"
                       width={40}
                       height={40}
                       alt="profile"

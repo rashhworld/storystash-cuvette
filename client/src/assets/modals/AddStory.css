@@ -147,7 +147,7 @@
         align-items: flex-start;
         flex-direction: column;
         gap: 5px;
-        width: calc(95% - 14px);
+        width: 95%;
     }
 
     .addStory .inputs .group,

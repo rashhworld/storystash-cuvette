@@ -15,16 +15,19 @@ function AddStory({
     register,
     handleSubmit,
     reset,
+    getValues,
+    setValue,
     setError,
     clearErrors,
-    trigger,
-    getValues,
     formState: { errors },
   } = useForm();
 
   const [allSlides, setAllSlides] = useState([]);
-  const [currentSlide, setCurrentSlide] = useState(-1);
+  const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const videoRef = useRef(null);
+
+  const maxSlides = 6;
+  const minSlides = 3;
 
   const mediaTypes = {
     image: ["jpg", "jpeg", "png", "gif", "webp", "svg"],
@@ -44,6 +47,8 @@ function AddStory({
       type: "manual",
       message: "Checking media. Please wait ...",
     });
+
+    await new Promise((resolve) => setTimeout(resolve, 500));
 
     if (mediaTypes.image.includes(ext)) {
       const img = new Image();
@@ -101,168 +106,175 @@ function AddStory({
     return false;
   };
 
-  const changeCategory = (newCategory) => {
-    const updatedSlides = allSlides.map((slide) => ({
-      ...slide,
-      category: newCategory,
-    }));
+  const validateForm = async () => {
+    clearErrors();
+    const currentValues = getValues();
+    let hasError = false;
 
-    setAllSlides(updatedSlides);
-  };
-
-  const onSubmit = async (data) => {
-    const isValid = await validateMediaUrl(data.media);
-
-    if (isValid) {
-      changeCategory(data.category);
-      const slideLen = allSlides.length;
-
-      if (currentSlide === slideLen || currentSlide === -1) {
-        setAllSlides((prevSlide) => [...prevSlide, data]);
-        if (slideLen + 1 > 5) setCurrentSlide(5);
-        else setCurrentSlide(slideLen + 1);
-      } else {
-        const updatedSlides = [...allSlides];
-        updatedSlides[currentSlide] = data;
-        setAllSlides(updatedSlides);
-        setCurrentSlide(slideLen);
-      }
-      if (currentSlide < 5) {
-        reset({
-          heading: "",
-          description: "",
-          media: "",
-          category: "",
-          likes: 0,
+    ["heading", "description", "media", "category"].forEach((field) => {
+      if (!currentValues[field]) {
+        setError(field, {
+          type: "manual",
+          message: `${
+            field.charAt(0).toUpperCase() + field.slice(1)
+          } is required.`,
         });
+        hasError = true;
       }
-      return true;
-    }
-    return false;
-  };
-
-  const handleHeaderNav = async (idx) => {
-    let noData = true;
-    Object.values(getValues()).forEach((value) => {
-      if (value !== "") noData = false;
     });
 
-    if (noData) {
-      setCurrentSlide(idx);
-      reset(allSlides[idx]);
-      return;
+    const isMediaValid =
+      currentValues.media && (await validateMediaUrl(currentValues.media));
+    if (!isMediaValid) {
+      hasError = true;
     }
 
-    if (await trigger()) {
-      if (await onSubmit(getValues())) {
-        reset(allSlides[idx]);
-        setCurrentSlide(idx);
-      }
-    }
+    return !hasError;
   };
 
-  const handleFooterNav = async (type) => {
-    let noData = true;
-    Object.values(getValues()).forEach((value) => {
-      if (value !== "") noData = false;
-    });
+  const handleAddSlide = async () => {
+    const isFormValid = await validateForm();
+    if (!isFormValid) return;
 
-    let navIdx;
-    if (type === "prev") {
-      if (currentSlide > 5) navIdx = 5;
-      else navIdx = currentSlide === 0 ? currentSlide : currentSlide - 1;
-    } else if (type === "next") {
-      navIdx =
-        currentSlide === allSlides.length - 1 ? currentSlide : currentSlide + 1;
+    const currentValues = getValues();
+    const updatedAllSlides = [...allSlides];
+
+    if (currentSlideIndex >= updatedAllSlides.length) {
+      updatedAllSlides.push(currentValues);
+    } else {
+      updatedAllSlides[currentSlideIndex] = currentValues;
     }
 
-    if (noData) {
-      setCurrentSlide(navIdx);
-      reset(allSlides[navIdx]);
-      return;
-    }
+    setAllSlides(updatedAllSlides);
 
-    if (await trigger()) {
-      if (await onSubmit(getValues())) {
-        setCurrentSlide(navIdx);
-        reset(allSlides[navIdx]);
-      }
+    if (updatedAllSlides.length < maxSlides) {
+      setCurrentSlideIndex(updatedAllSlides.length);
+      reset();
     }
   };
 
-  const deleteSlide = (e, index) => {
-    e.stopPropagation();
+  const handlePreviousSlide = async () => {
+    const isFormValid = await validateForm();
+    if (!isFormValid) return;
 
-    setAllSlides((prevSlides) => {
-      const newSlides = prevSlides.filter((_, i) => i !== index);
-      if (newSlides.length > 0 && index > 0) {
-        if (index < newSlides.length) {
-          reset(newSlides[index]);
-          setCurrentSlide(index);
-        } else {
-          reset(newSlides[newSlides.length - 1]);
-          setCurrentSlide(newSlides.length - 1);
-        }
-      } else if (newSlides.length > 0) {
-        reset(newSlides[0]);
-        setCurrentSlide(0);
-      }
-      return newSlides;
-    });
+    const currentValues = getValues();
+    const updatedAllSlides = [...allSlides];
+
+    if (currentSlideIndex >= updatedAllSlides.length) {
+      updatedAllSlides.push(currentValues);
+    } else {
+      updatedAllSlides[currentSlideIndex] = currentValues;
+    }
+
+    setAllSlides(updatedAllSlides);
+
+    if (currentSlideIndex > 0) {
+      setCurrentSlideIndex((prev) => prev - 1);
+      setFormValues(updatedAllSlides[currentSlideIndex - 1]);
+    }
   };
 
-  const createStory = async () => {
-    if (!userToken) {
-      alert("please login");
-      return;
+  const handleNextSlide = async () => {
+    const isFormValid = await validateForm();
+    if (!isFormValid) return;
+
+    const currentValues = getValues();
+    const updatedAllSlides = [...allSlides];
+
+    if (currentSlideIndex >= updatedAllSlides.length) {
+      updatedAllSlides.push(currentValues);
+    } else {
+      updatedAllSlides[currentSlideIndex] = currentValues;
     }
 
-    let noData = true;
-    Object.values(getValues()).forEach((value) => {
-      if (value !== "") noData = false;
-    });
+    setAllSlides(updatedAllSlides);
 
-    if (noData && allSlides.length > 2) {
-      createStoryApi(allSlides, userToken);
-      setAllSlides([]);
-      setCurrentSlide(-1);
-      onClose();
-      return;
+    if (currentSlideIndex < allSlides.length - 1) {
+      setCurrentSlideIndex((prev) => prev + 1);
+      setFormValues(updatedAllSlides[currentSlideIndex + 1]);
+    }
+  };
+
+  const handleDirectNavigation = async (index) => {
+    const isFormValid = await validateForm();
+    if (!isFormValid) return;
+
+    const currentValues = getValues();
+    const updatedAllSlides = [...allSlides];
+
+    if (currentSlideIndex >= updatedAllSlides.length) {
+      updatedAllSlides.push(currentValues);
+    } else {
+      updatedAllSlides[currentSlideIndex] = currentValues;
     }
 
-    if (await trigger()) {
-      const values = getValues();
-      const updatedSlides = [...allSlides];
+    setAllSlides(updatedAllSlides);
 
-      if (currentSlide >= 0 && currentSlide < updatedSlides.length) {
-        updatedSlides[currentSlide] = values;
-      } else {
-        updatedSlides.push(values);
-      }
+    setCurrentSlideIndex(index);
+    setFormValues(updatedAllSlides[index]);
+  };
 
-      if (await onSubmit(values)) {
-        setAllSlides(updatedSlides);
-        await createStoryApi(updatedSlides, userToken, storyId);
-        onClose();
-      }
+  const setFormValues = (slide) => {
+    setValue("heading", slide.heading);
+    setValue("description", slide.description);
+    setValue("media", slide.media);
+    setValue("category", slide.category);
+  };
+
+  const handleDeleteSlide = (index, event) => {
+    event.stopPropagation();
+
+    const updatedAllSlides = [...allSlides];
+
+    updatedAllSlides.splice(index, 1);
+    setAllSlides(updatedAllSlides);
+
+    const newSlideIndex = updatedAllSlides.length - 1;
+
+    setCurrentSlideIndex(newSlideIndex);
+    setFormValues(updatedAllSlides[newSlideIndex]);
+  };
+
+  const handlePost = async () => {
+    const isFormValid = await validateForm();
+    if (!isFormValid) return;
+
+    const currentValues = getValues();
+    const updatedAllSlides = [...allSlides];
+
+    if (currentSlideIndex >= updatedAllSlides.length) {
+      updatedAllSlides.push(currentValues);
+    } else {
+      updatedAllSlides[currentSlideIndex] = currentValues;
+    }
+
+    setAllSlides(updatedAllSlides);
+
+    if (updatedAllSlides.length >= minSlides - 1) {
+      const lastSelectedCategory = currentValues.category;
+      const processedSlides = updatedAllSlides.map((slide) => ({
+        ...slide,
+        category: lastSelectedCategory,
+        likes: slide.likes > 0 ? slide.likes : 0,
+      }));
+      await createStoryApi(processedSlides, userToken, storyId);
+    } else {
+      setError("global", {
+        type: "manual",
+        message: "Please add at least 3 slides before posting.",
+      });
     }
   };
 
   useEffect(() => {
-    reset({
-      heading: "",
-      description: "",
-      media: "",
-      category: "",
-      likes: 0,
-    });
     if (storyData.length > 0) {
       setAllSlides(storyData);
-      reset(storyData[0]);
-      setCurrentSlide(0);
+      setCurrentSlideIndex(0);
+      setFormValues(storyData[0]);
     } else {
       setAllSlides([]);
-      setCurrentSlide(-1);
+      reset();
+      setCurrentSlideIndex(0);
     }
   }, [storyData]);
 
@@ -287,32 +299,35 @@ function AddStory({
       <div className="storyContainer">
         <div className="slideCount">
           {allSlides.map((_, i) => (
-            <div
-              className="slideBox"
-              onClick={() => handleHeaderNav(i)}
-              key={i}
-            >
+            <div className="slideBox" key={i}>
               {i >= 3 && (
                 <img
                   src="/icons/x-circle.svg"
-                  onClick={(e) => deleteSlide(e, i)}
+                  onClick={(event) => handleDeleteSlide(i, event)}
                   alt="x-circle"
                 />
               )}
-              <div className={`card ${i === currentSlide ? "active" : ""}`}>
+              <div
+                className={`card ${i === currentSlideIndex ? "active" : ""}`}
+                onClick={() => handleDirectNavigation(i)}
+              >
                 Slide {i + 1}
               </div>
             </div>
           ))}
           {allSlides.length < 6 && (
             <div className="slideBox">
-              <div className="card" onClick={handleSubmit(onSubmit)}>
+              <div
+                className="card"
+                onClick={handleAddSlide}
+                disabled={allSlides.length >= maxSlides}
+              >
                 Add +
               </div>
             </div>
           )}
         </div>
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit(handlePost)}>
           <div className="inputs">
             <label htmlFor="heading">Heading :</label>
             <div className="group">
@@ -342,6 +357,7 @@ function AddStory({
                     message: "Description must be at most 120 characters",
                   },
                 })}
+                maxLength={120}
                 placeholder="Story Description"
               />
               {errors.description && (
@@ -388,52 +404,33 @@ function AddStory({
               )}
             </div>
           </div>
-          <div className="inputs" style={{ display: "none" }}>
-            <label htmlFor="likes">Likes</label>
-            <div className="group">
-              <input
-                type="number"
-                id="likes"
-                {...register("likes", {
-                  required: "likes field is required",
-                })}
-              />
-              {errors.likes && (
-                <span className="error">{errors.likes.message}</span>
-              )}
-            </div>
-          </div>
           <div className="storyAction">
             <div>
               <button
                 type="button"
                 className="prevSlide"
-                onClick={() => handleFooterNav("prev")}
-                disabled={currentSlide === 0 || currentSlide === -1}
+                onClick={handlePreviousSlide}
+                disabled={currentSlideIndex === 0}
               >
                 Previous
               </button>
               <button
                 type="button"
                 className="nextSlide"
-                onClick={() => handleFooterNav("next")}
-                disabled={currentSlide >= allSlides.length - 1}
+                onClick={handleNextSlide}
+                disabled={currentSlideIndex >= allSlides.length - 1}
               >
                 Next
               </button>
             </div>
             <div>
-              <button
-                type="submit"
-                disabled={currentSlide < 2 && allSlides.length < 3}
-                onClick={createStory}
-              >
+              <button type="submit" disabled={allSlides.length < minSlides - 1}>
                 Post
               </button>
             </div>
           </div>
-          <video ref={videoRef} style={{ display: "none" }} />
         </form>
+        <video ref={videoRef} style={{ display: "none" }} />
       </div>
     </Modal>
   );
