@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { userLoginApi, userRegisterApi } from "../../apis/User";
 import { Modal } from "react-responsive-modal";
@@ -11,10 +11,13 @@ function UserAuth({ open, onClose, authType, setUserToken }) {
     reset,
     formState: { errors },
   } = useForm();
+
+  const [localAuthType, setLocalAuthType] = useState(authType);
   const [showPass, setShowPass] = useState(false);
 
   const onSubmit = async (data) => {
-    const apiCall = authType === "Register" ? userRegisterApi : userLoginApi;
+    const apiCall =
+      localAuthType === "Register" ? userRegisterApi : userLoginApi;
     const token = await apiCall(data);
 
     if (token) {
@@ -28,6 +31,10 @@ function UserAuth({ open, onClose, authType, setUserToken }) {
     onClose();
     reset();
   };
+
+  useEffect(() => {
+    setLocalAuthType(authType);
+  }, [authType]);
 
   return (
     <Modal
@@ -43,7 +50,7 @@ function UserAuth({ open, onClose, authType, setUserToken }) {
         onClick={closeAuthModal}
         alt="Close"
       />
-      <h1>{authType}</h1>
+      <h1>{localAuthType}</h1>
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="inputs">
           <label htmlFor="userName">Username</label>
@@ -95,9 +102,20 @@ function UserAuth({ open, onClose, authType, setUserToken }) {
           />
         </div>
         <button type="submit" className="loginBtn">
-          {authType}
+          {localAuthType}
         </button>
       </form>
+      <div className="authNav">
+        {localAuthType === "Register" ? (
+          <p onClick={() => setLocalAuthType("Login")}>
+            Registered user? <span>Login</span>
+          </p>
+        ) : (
+          <p onClick={() => setLocalAuthType("Register")}>
+            New User? <span>Register</span>
+          </p>
+        )}
+      </div>
     </Modal>
   );
 }

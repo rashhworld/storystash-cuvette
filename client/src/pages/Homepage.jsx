@@ -58,6 +58,7 @@ function Homepage() {
   );
   const [addStoryModal, setAddStoryModal] = useState(false);
   const [yourStory, setYourStory] = useState(searchParams.has("yourstory"));
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const filterCatagory = (category) => {
     const data = categoryList.filter((item) => item.name == category);
@@ -101,10 +102,8 @@ function Homepage() {
     else setYourStory(false);
   }, [searchParams]);
 
-  // console.log(storyData);
-
   return (
-    <>
+    <div key={refreshKey}>
       <Navbar
         authType={(type) => {
           setAuthType(type);
@@ -121,7 +120,10 @@ function Homepage() {
         />
       )}
       {userStory.length > 0 && (
-        <div className="yourStory">
+        <div
+          className="yourStory"
+          style={{ display: yourStory ? "block" : "" }}
+        >
           <Stories
             storyTitle="Stories"
             setStoryModal={setStoryModal}
@@ -165,12 +167,15 @@ function Homepage() {
         onClose={() => {
           setAddStoryModal(false);
           setStoryData([]);
+          setStoryId(null);
+          fetchUser();
+          setRefreshKey((prevKey) => prevKey + 1);
         }}
         userToken={userToken}
         storyId={storyId}
         storyData={storyData}
       />
-    </>
+    </div>
   );
 }
 

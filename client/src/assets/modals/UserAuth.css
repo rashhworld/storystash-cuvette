@@ -61,6 +61,18 @@
     background: #73ABFF;
 }
 
+.userAuth .authNav {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    color: #878683;
+    cursor: pointer;
+}
+
+.userAuth .authNav span {
+    color: #73ABFF;
+}
+
 @media only screen and (max-width: 768px) {
     .userAuth {
         width: 90% !important;

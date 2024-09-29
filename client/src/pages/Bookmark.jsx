@@ -39,8 +39,6 @@ function Bookmark() {
     }
   }, [userToken]);
 
-  // console.log(userBookmark);
-
   return (
     <>
       <Navbar

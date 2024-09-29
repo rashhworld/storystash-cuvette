@@ -97,10 +97,6 @@ function ViewStory({ open, onClose, authType, userToken }) {
     });
   };
 
-  const saveUserAction = async () => {
-    userToken && (await saveUserActionApi(storyId, slideAction, userToken));
-  };
-
   const updateSlideLike = async () => {
     const like = slideAction.like.includes(activeSlide) ? -1 : 1;
     const updatedLikesCount = await updateSlideLikeApi(
@@ -134,8 +130,6 @@ function ViewStory({ open, onClose, authType, userToken }) {
   useEffect(() => {
     if (open) setActiveSlide(slideId);
   }, [open, slideId]);
-
-  // console.log(slideAction);
 
   return (
     <Modal

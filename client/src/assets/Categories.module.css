@@ -42,6 +42,7 @@
 
 .card p {
     z-index: 2;
+    text-align: center;
 }
 
 .card:first-child {

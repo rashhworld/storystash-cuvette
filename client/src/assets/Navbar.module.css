@@ -18,6 +18,7 @@
     color: #FF7373;
     text-transform: uppercase;
     cursor: pointer;
+    user-select: none;
 }
 
 .logo span {

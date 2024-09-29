@@ -207,7 +207,6 @@ function AddStory({
         reset(newSlides[0]);
         setCurrentSlide(0);
       }
-      console.log("newSlide: ", newSlides);
       return newSlides;
     });
   };
@@ -266,8 +265,6 @@ function AddStory({
       setCurrentSlide(-1);
     }
   }, [storyData]);
-
-  // console.log(storyData);
 
   return (
     <Modal
@@ -340,6 +337,10 @@ function AddStory({
                 id="description"
                 {...register("description", {
                   required: "Description is required",
+                  maxLength: {
+                    value: 120,
+                    message: "Description must be at most 120 characters",
+                  },
                 })}
                 placeholder="Story Description"
               />

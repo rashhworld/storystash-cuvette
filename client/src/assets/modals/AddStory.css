@@ -109,8 +109,8 @@
 
 @media only screen and (max-width: 768px) {
     .addStory {
-        width: 90% !important;
-        padding: 40px 15px !important;
+        width: 95% !important;
+        padding: 40px 7px !important;
         margin: 20px 0 !important;
     }
 
@@ -121,6 +121,7 @@
 
     .addStory .header {
         justify-content: center;
+        margin-bottom: 30px;
     }
 
     .addStory .header p {
@@ -146,6 +147,7 @@
         align-items: flex-start;
         flex-direction: column;
         gap: 5px;
+        width: calc(95% - 14px);
     }
 
     .addStory .inputs .group,

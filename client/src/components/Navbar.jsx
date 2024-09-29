@@ -39,12 +39,7 @@ function Navbar({ authType, userData, setUserToken, setAddStoryModal }) {
                 Bookmark
               </button>
               <button onClick={() => setAddStoryModal(true)}>Add Story</button>
-              <img
-                src="https://rashhworld.github.io/assets/images/profile.webp"
-                width={40}
-                height={40}
-                alt="profile"
-              />
+              <img src="/user.png" width={40} height={40} alt="profile" />
             </>
           ) : (
             <>
