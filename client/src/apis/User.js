@@ -79,7 +79,25 @@ export const fetchUserBookmarkApi = async (token) => {
     }
 };
 
-export const saveUserActionApi = async (storyId, userAction, token) => {
+// export const saveUserActionApi = async (storyId, userAction, token) => {
+//     try {
+//         const response = await fetch(`${baseURL}/user/action`, {
+//             method: 'POST',
+//             headers: {
+//                 'Content-Type': 'application/json',
+//                 'Authorization': `Bearer ${token}`
+//             },
+//             body: JSON.stringify({ storyId, userAction }),
+//         });
+
+//         const { status, data, msg } = await response.json();
+//         return status === 'success' ? data : (toast.error(msg), undefined);
+//     } catch (error) {
+//         console.error(error);
+//     }
+// };
+
+export const saveUserActionApi = async (type, storyId, slideId, token) => {
     try {
         const response = await fetch(`${baseURL}/user/action`, {
             method: 'POST',
@@ -87,7 +105,7 @@ export const saveUserActionApi = async (storyId, userAction, token) => {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify({ storyId, userAction }),
+            body: JSON.stringify({ type, storyId, slideId }),
         });
 
         const { status, data, msg } = await response.json();

@@ -78,11 +78,12 @@ function ViewStory({ open, onClose, authType, userToken }) {
       authType("Login");
       return;
     }
-
     if (type == "download") {
       await downloadStoryApi(media);
       return;
     }
+
+    await saveUserActionApi(type, storyId, activeSlide, userToken);
 
     setSlideAction((prevData) => {
       const currentData = prevData[type];
@@ -139,10 +140,7 @@ function ViewStory({ open, onClose, authType, userToken }) {
   return (
     <Modal
       open={open}
-      onClose={() => {
-        onClose();
-        saveUserAction();
-      }}
+      onClose={onClose}
       center
       classNames={{ modal: "viewStory" }}
       showCloseIcon={false}

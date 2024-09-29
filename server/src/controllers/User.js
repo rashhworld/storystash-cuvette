@@ -113,44 +113,75 @@ const fetchUserBookmark = async (req, res, next) => {
     }
 };
 
+// const saveUserAction = async (req, res, next) => {
+//     try {
+//         const userId = req.user;
+//         const { storyId, userAction } = req.body;
+
+//         await validateStoryData(storyId);
+
+//         const result = await User.findOneAndUpdate(
+//             { _id: userId, 'userAction.storyId': storyId },
+//             {
+//                 $set: {
+//                     'userAction.$.like': userAction.like,
+//                     'userAction.$.bookmark': userAction.bookmark
+//                 }
+//             },
+//             { new: true }
+//         );
+
+//         if (!result) {
+//             await User.findByIdAndUpdate(
+//                 { _id: userId },
+//                 {
+//                     $push: {
+//                         userAction: {
+//                             storyId,
+//                             like: userAction.like,
+//                             bookmark: userAction.bookmark
+//                         }
+//                     }
+//                 },
+//             );
+//         }
+
+//         res.status(200).json({ status: "success", data: "" });
+//     } catch (err) {
+//         next(err);
+//     }
+// };
+
 const saveUserAction = async (req, res, next) => {
     try {
         const userId = req.user;
-        const { storyId, userAction } = req.body;
+        const { type, storyId, slideId } = req.body;
 
         await validateStoryData(storyId);
+        const user = await User.findById(userId);
 
-        const result = await User.findOneAndUpdate(
-            { _id: userId, 'userAction.storyId': storyId },
-            {
-                $set: {
-                    'userAction.$.like': userAction.like,
-                    'userAction.$.bookmark': userAction.bookmark
-                }
-            },
-            { new: true }
-        );
+        let userAction = user.userAction.find(action => action.storyId.toString() === storyId);
+        if (!userAction) {
+            userAction = {
+                storyId,
+                like: type === 'like' ? [slideId] : [],
+                bookmark: type === 'bookmark' ? [slideId] : [],
+            };
+            user.userAction.push(userAction);
+        } else {
+            const actionsArray = userAction[type];
+            const slideIndex = actionsArray.indexOf(slideId);
 
-        if (!result) {
-            await User.findByIdAndUpdate(
-                { _id: userId },
-                {
-                    $push: {
-                        userAction: {
-                            storyId,
-                            like: userAction.like,
-                            bookmark: userAction.bookmark
-                        }
-                    }
-                },
-            );
+            if (slideIndex !== -1) actionsArray.splice(slideIndex, 1);
+            else actionsArray.push(slideId);
         }
 
+        await user.save();
         res.status(200).json({ status: "success", data: "" });
     } catch (err) {
         next(err);
     }
-};
+}
 
 const fetchUserAction = async (req, res, next) => {
     try {
