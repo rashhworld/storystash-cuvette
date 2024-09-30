@@ -1,8 +1,9 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import styles from "../assets/Categories.module.css";
 
-function Categories({ categories, filterCatagory }) {
-  const [activeCatagory, setActiveCatagory] = useState("All");
+function Categories({ categories, filteredCatagory }) {
+  const [selectedCategories, setSelectedCategories] = useState(["All"]);
+
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
@@ -23,6 +24,27 @@ function Categories({ categories, filterCatagory }) {
     scrollContainerRef.current.scrollLeft = scrollLeft - walk;
   };
 
+  const filterCatagory = (categoryName) => {
+    if (categoryName === "All") {
+      setSelectedCategories(["All"]);
+    } else {
+      setSelectedCategories((prevSelected) => {
+        if (prevSelected.includes(categoryName)) {
+          return prevSelected.filter((cat) => cat !== categoryName);
+        } else {
+          const newSelection = prevSelected.includes("All")
+            ? prevSelected.filter((cat) => cat !== "All")
+            : prevSelected;
+          return [...newSelection, categoryName];
+        }
+      });
+    }
+  };
+
+  useEffect(() => {
+    filteredCatagory(selectedCategories);
+  }, [selectedCategories]);
+
   return (
     <div
       className={`${styles.categories}`}
@@ -35,14 +57,11 @@ function Categories({ categories, filterCatagory }) {
       {categories.map((cat, index) => (
         <div
           className={`${styles.card} ${
-            activeCatagory === cat.name ? styles.active : ""
+            selectedCategories.includes(cat.name) ? styles.active : ""
           }`}
           key={index}
           style={{ backgroundImage: `url(${cat.img})` }}
-          onClick={() => {
-            filterCatagory(cat.name);
-            setActiveCatagory(cat.name);
-          }}
+          onClick={() => filterCatagory(cat.name)}
         >
           <p>{cat.name}</p>
         </div>

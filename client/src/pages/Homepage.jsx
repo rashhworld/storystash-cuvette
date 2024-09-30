@@ -52,7 +52,7 @@ function Homepage() {
   const [storyId, setStoryId] = useState(null);
   const [storyData, setStoryData] = useState([]);
 
-  const [category, setCategory] = useState(categoryList);
+  const [category, setCategory] = useState([]);
   const [storyModal, setStoryModal] = useState(
     searchParams.has("story") && searchParams.has("slide")
   );
@@ -61,8 +61,14 @@ function Homepage() {
   const [refreshKey, setRefreshKey] = useState(0);
 
   const filterCatagory = (category) => {
-    const data = categoryList.filter((item) => item.name == category);
-    category !== "All" ? setCategory(data) : setCategory(categoryList);
+    if (category.includes("All") || category.length === 0) {
+      setCategory(categoryList);
+    } else {
+      const newCategories = categoryList.filter((item) =>
+        category.includes(item.name)
+      );
+      setCategory(newCategories);
+    }
   };
 
   const fetchUser = async () => {
@@ -116,7 +122,7 @@ function Homepage() {
       {!yourStory && (
         <Categories
           categories={categoryList}
-          filterCatagory={(category) => filterCatagory(category)}
+          filteredCatagory={filterCatagory}
         />
       )}
       {userStory.length > 0 && (

@@ -22,6 +22,7 @@ function AddStory({
     formState: { errors },
   } = useForm();
 
+  const [defaultCategory, setDefaultCategory] = useState("");
   const [allSlides, setAllSlides] = useState([]);
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const videoRef = useRef(null);
@@ -221,6 +222,7 @@ function AddStory({
       setAllSlides(storyData);
       setCurrentSlideIndex(0);
       setFormValues(storyData[0]);
+      setDefaultCategory(storyData[0].category);
     } else {
       setAllSlides([]);
       reset();
@@ -339,6 +341,8 @@ function AddStory({
                 {...register("category", {
                   required: "Category is required",
                 })}
+                value={defaultCategory}
+                onChange={(e) => setDefaultCategory(e.target.value)}
               >
                 <option value="" hidden>
                   Select category
