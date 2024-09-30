@@ -183,7 +183,7 @@ function ViewStory({ open, onClose, authType, userToken }) {
           </div>
           <div className="footer">
             <h3>{heading}</h3>
-            <p>{description}</p>
+            <p>{description.length > 130 ? `${description.slice(0, 130)} ...` : description}</p>
             <div className="action">
               <div
                 className={`bookmark ${

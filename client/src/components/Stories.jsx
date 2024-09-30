@@ -80,7 +80,7 @@ function Stories({
                   </div>
                   <div className={styles.content}>
                     <h3>{heading}</h3>
-                    <p>{description}</p>
+                    <p>{description.length > 130 ? `${description.slice(0, 130)} ...` : description}</p>
                   </div>
                   {storyTitle === "Stories" && (
                     <button

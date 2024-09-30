@@ -14,27 +14,27 @@ import AddStory from "../components/modals/AddStory";
 const categoryList = [
   {
     name: "All",
-    img: "https://www.quadrant.io/hs-fs/hubfs/philipp-kammerer-6Mxb_mZ_Q8E-unsplash.jpg",
+    img: "/images/general.webp",
   },
   {
     name: "Food",
-    img: "https://www.foodiesfeed.com/wp-content/uploads/2023/06/burger-with-melted-cheese.jpg",
-  },
-  {
-    name: "Health and fitness",
-    img: "https://static.toiimg.com/thumb/imgsize-681673,msid-75126749,width-600,height-335,resizemode-75/75126749.jpg",
-  },
-  {
-    name: "Travel",
-    img: "https://www.quadrant.io/hs-fs/hubfs/philipp-kammerer-6Mxb_mZ_Q8E-unsplash.jpg",
+    img: "/images/food.webp",
   },
   {
     name: "Movie",
-    img: "https://assets.gadgets360cdn.com/pricee/assets/product/202212/65_1671448856.jpg",
+    img: "/images/movie.webp",
+  },
+  {
+    name: "Travel",
+    img: "/images/travel.webp",
+  },
+  {
+    name: "Fitness",
+    img: "/images/fitness.webp",
   },
   {
     name: "Education",
-    img: "https://www.timeshighereducation.com/student/sites/default/files/styles/default/public/istock-499343530.jpg",
+    img: "/images/education.webp",
   },
 ];
 

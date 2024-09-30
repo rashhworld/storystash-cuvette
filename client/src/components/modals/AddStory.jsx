@@ -304,12 +304,7 @@ function AddStory({
                 id="description"
                 {...register("description", {
                   required: "Description is required",
-                  maxLength: {
-                    value: 120,
-                    message: "Description must be at most 120 characters",
-                  },
                 })}
-                maxLength={120}
                 placeholder="Story Description"
               />
               {errors.description && (
@@ -348,9 +343,9 @@ function AddStory({
                   Select category
                 </option>
                 <option value="Food">Food</option>
-                <option value="Health and fitness">Health and fitness</option>
-                <option value="Travel">Travel</option>
                 <option value="Movie">Movie</option>
+                <option value="Travel">Travel</option>
+                <option value="Fitness">Fitness</option>
                 <option value="Education">Education</option>
               </select>
               {errors.category && (
