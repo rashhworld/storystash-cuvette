@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import styles from "../assets/Navbar.module.css";
 
 function Navbar({ authType, userData, setUserToken, setAddStoryModal }) {
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
 
   const [showMenu, setShowMenu] = useState(false);
   const [mobileMenu, setMobileMenu] = useState(false);
@@ -64,19 +63,14 @@ function Navbar({ authType, userData, setUserToken, setAddStoryModal }) {
               <>
                 <div className={styles.profile}>
                   {mobileMenu && (
-                    <img
-                      src="/user.png"
-                      width={40}
-                      height={40}
-                      alt="profile"
-                    />
+                    <img src="/user.png" width={40} height={40} alt="profile" />
                   )}
                   <h4>{userData.userName}</h4>
                 </div>
                 {mobileMenu && (
                   <button
                     onClick={() => {
-                      setSearchParams({ yourstory: true });
+                      navigate("/?yourstory=true");
                       setShowMenu(false);
                     }}
                   >

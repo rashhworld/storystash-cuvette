@@ -28,6 +28,7 @@ function AddStory({
 
   const maxSlides = 6;
   const minSlides = 3;
+  const inputTypes = ["heading", "description", "media", "category", "likes"];
 
   const mediaTypes = {
     image: ["jpg", "jpeg", "png", "gif", "webp", "svg"],
@@ -111,17 +112,15 @@ function AddStory({
     const currentValues = getValues();
     let hasError = false;
 
-    ["heading", "description", "media", "category"].forEach((field) => {
-      if (!currentValues[field]) {
+    for (const field of inputTypes) {
+      if (field !== "likes" && !currentValues[field]) {
         setError(field, {
           type: "manual",
-          message: `${
-            field.charAt(0).toUpperCase() + field.slice(1)
-          } is required.`,
+          message: "This field is required.",
         });
         hasError = true;
       }
-    });
+    }
 
     const isMediaValid =
       currentValues.media && (await validateMediaUrl(currentValues.media));
@@ -132,12 +131,11 @@ function AddStory({
     return !hasError;
   };
 
-  const handleAddSlide = async () => {
-    const isFormValid = await validateForm();
-    if (!isFormValid) return;
+  const handleUpdateSlide = async () => {
+    if (!(await validateForm())) return;
 
     const currentValues = getValues();
-    const updatedAllSlides = [...allSlides];
+    let updatedAllSlides = [...allSlides];
 
     if (currentSlideIndex >= updatedAllSlides.length) {
       updatedAllSlides.push(currentValues);
@@ -145,85 +143,59 @@ function AddStory({
       updatedAllSlides[currentSlideIndex] = currentValues;
     }
 
-    setAllSlides(updatedAllSlides);
+    updatedAllSlides = updatedAllSlides.map((slide) => ({
+      ...slide,
+      category: currentValues.category,
+    }));
 
-    if (updatedAllSlides.length < maxSlides) {
-      setCurrentSlideIndex(updatedAllSlides.length);
-      reset();
-    }
+    setAllSlides(updatedAllSlides);
+    return updatedAllSlides;
+  };
+
+  const setFormValues = (slide) => {
+    inputTypes.forEach((key) => {
+      setValue(key, slide[key]);
+    });
   };
 
   const handlePreviousSlide = async () => {
-    const isFormValid = await validateForm();
-    if (!isFormValid) return;
+    const updatedSlides = await handleUpdateSlide();
 
-    const currentValues = getValues();
-    const updatedAllSlides = [...allSlides];
-
-    if (currentSlideIndex >= updatedAllSlides.length) {
-      updatedAllSlides.push(currentValues);
-    } else {
-      updatedAllSlides[currentSlideIndex] = currentValues;
-    }
-
-    setAllSlides(updatedAllSlides);
-
-    if (currentSlideIndex > 0) {
+    if (updatedSlides && currentSlideIndex > 0) {
       setCurrentSlideIndex((prev) => prev - 1);
-      setFormValues(updatedAllSlides[currentSlideIndex - 1]);
+      setFormValues(updatedSlides[currentSlideIndex - 1]);
     }
   };
 
   const handleNextSlide = async () => {
-    const isFormValid = await validateForm();
-    if (!isFormValid) return;
+    const updatedSlides = await handleUpdateSlide();
 
-    const currentValues = getValues();
-    const updatedAllSlides = [...allSlides];
-
-    if (currentSlideIndex >= updatedAllSlides.length) {
-      updatedAllSlides.push(currentValues);
-    } else {
-      updatedAllSlides[currentSlideIndex] = currentValues;
-    }
-
-    setAllSlides(updatedAllSlides);
-
-    if (currentSlideIndex < allSlides.length - 1) {
+    if (updatedSlides && currentSlideIndex < allSlides.length - 1) {
       setCurrentSlideIndex((prev) => prev + 1);
-      setFormValues(updatedAllSlides[currentSlideIndex + 1]);
+      setFormValues(updatedSlides[currentSlideIndex + 1]);
     }
   };
 
   const handleDirectNavigation = async (index) => {
-    const isFormValid = await validateForm();
-    if (!isFormValid) return;
+    const updatedSlides = await handleUpdateSlide();
 
-    const currentValues = getValues();
-    const updatedAllSlides = [...allSlides];
-
-    if (currentSlideIndex >= updatedAllSlides.length) {
-      updatedAllSlides.push(currentValues);
-    } else {
-      updatedAllSlides[currentSlideIndex] = currentValues;
+    if (updatedSlides) {
+      setCurrentSlideIndex(index);
+      setFormValues(updatedSlides[index]);
     }
-
-    setAllSlides(updatedAllSlides);
-
-    setCurrentSlideIndex(index);
-    setFormValues(updatedAllSlides[index]);
   };
 
-  const setFormValues = (slide) => {
-    setValue("heading", slide.heading);
-    setValue("description", slide.description);
-    setValue("media", slide.media);
-    setValue("category", slide.category);
+  const handleAddSlide = async () => {
+    const updatedSlides = await handleUpdateSlide();
+
+    if (updatedSlides && updatedSlides.length < maxSlides) {
+      setCurrentSlideIndex(updatedSlides.length);
+      reset();
+    }
   };
 
   const handleDeleteSlide = (index, event) => {
     event.stopPropagation();
-
     const updatedAllSlides = [...allSlides];
 
     updatedAllSlides.splice(index, 1);
@@ -236,33 +208,11 @@ function AddStory({
   };
 
   const handlePost = async () => {
-    const isFormValid = await validateForm();
-    if (!isFormValid) return;
+    const updatedSlides = await handleUpdateSlide();
 
-    const currentValues = getValues();
-    const updatedAllSlides = [...allSlides];
-
-    if (currentSlideIndex >= updatedAllSlides.length) {
-      updatedAllSlides.push(currentValues);
-    } else {
-      updatedAllSlides[currentSlideIndex] = currentValues;
-    }
-
-    setAllSlides(updatedAllSlides);
-
-    if (updatedAllSlides.length >= minSlides - 1) {
-      const lastSelectedCategory = currentValues.category;
-      const processedSlides = updatedAllSlides.map((slide) => ({
-        ...slide,
-        category: lastSelectedCategory,
-        likes: slide.likes > 0 ? slide.likes : 0,
-      }));
-      await createStoryApi(processedSlides, userToken, storyId);
-    } else {
-      setError("global", {
-        type: "manual",
-        message: "Please add at least 3 slides before posting.",
-      });
+    if (updatedSlides && updatedSlides.length >= minSlides - 1) {
+      await createStoryApi(updatedSlides, userToken, storyId);
+      onClose();
     }
   };
 
@@ -401,6 +351,23 @@ function AddStory({
               </select>
               {errors.category && (
                 <span className="error">{errors.category.message}</span>
+              )}
+            </div>
+          </div>
+          <div className="inputs" style={{ display: "none" }}>
+            <label htmlFor="media">Likes :</label>
+            <div className="group">
+              <input
+                type="number"
+                id="likes"
+                defaultValue={0}
+                {...register("likes", {
+                  required: "Likes field is required",
+                })}
+                readOnly={true}
+              />
+              {errors.likes && (
+                <span className="error">{errors.likes.message}</span>
               )}
             </div>
           </div>

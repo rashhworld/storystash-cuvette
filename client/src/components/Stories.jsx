@@ -46,54 +46,57 @@ function Stories({
       </h2>
       <div className={styles.storyList}>
         {storyData.length > 0 &&
-          storyData.slice(0, visibleCount).map((story, index) => {
-            const { heading, description, media } = story.slide;
-            return (
-              <div
-                className={styles.card}
-                onClick={() => {
-                  if (setStoryModal) {
-                    setStoryModal(true);
-                    setSearchParams({
-                      ...currentParams,
-                      story: story._id,
-                      slide: 0,
-                    });
-                  }
-                }}
-                key={index}
-              >
-                <div className={styles.media}>
-                  {getMediaType(media).type === "image" ? (
-                    <img src={media} alt="media" />
-                  ) : (
-                    <video>
-                      <source
-                        src={media}
-                        type={`video/${getMediaType(media).extension}`}
-                      />
-                    </video>
+          storyData
+            .slice(0, visibleCount)
+            .sort((a, b) => a._id.localeCompare(b._id))
+            .map((story, index) => {
+              const { heading, description, media } = story.slide;
+              return (
+                <div
+                  className={styles.card}
+                  onClick={() => {
+                    if (setStoryModal) {
+                      setStoryModal(true);
+                      setSearchParams({
+                        ...currentParams,
+                        story: story._id,
+                        slide: 0,
+                      });
+                    }
+                  }}
+                  key={index}
+                >
+                  <div className={styles.media}>
+                    {getMediaType(media).type === "image" ? (
+                      <img src={media} alt="media" />
+                    ) : (
+                      <video>
+                        <source
+                          src={media}
+                          type={`video/${getMediaType(media).extension}`}
+                        />
+                      </video>
+                    )}
+                  </div>
+                  <div className={styles.content}>
+                    <h3>{heading}</h3>
+                    <p>{description}</p>
+                  </div>
+                  {storyTitle === "Stories" && (
+                    <button
+                      className={styles.editStoryBtn}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        editStory(story._id);
+                      }}
+                    >
+                      <img src="/icons/pen.svg" alt="pen" />
+                      <span>Edit</span>
+                    </button>
                   )}
                 </div>
-                <div className={styles.content}>
-                  <h3>{heading}</h3>
-                  <p>{description}</p>
-                </div>
-                {storyTitle === "Stories" && (
-                  <button
-                    className={styles.editStoryBtn}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      editStory(story._id);
-                    }}
-                  >
-                    <img src="/icons/pen.svg" alt="pen" />
-                    <span>Edit</span>
-                  </button>
-                )}
-              </div>
-            );
-          })}
+              );
+            })}
       </div>
       {visibleCount < storyData.length && (
         <button onClick={() => setVisibleCount(storyData.length)}>
